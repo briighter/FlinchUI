@@ -1,0 +1,21 @@
+{
+  "name": "flinchui",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Copy-paste React components built on Tailwind v4 design tokens.",
+  "type": "module",
+  "bin": {
+    "flinchui": "./bin/flinchui.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "registry.json"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "registry": "node scripts/build-registry.mjs"
+  }
+}

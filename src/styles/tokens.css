@@ -1,0 +1,186 @@
+/**
+ * FlinchUI design tokens.
+ *
+ * Tailwind v4 `@theme` — every token below becomes a CSS variable *and* a set of
+ * utilities (e.g. `--color-surface` → `bg-surface`, `text-surface`, ...).
+ *
+ * Themeable tokens are declared with their **light defaults** here and overridden
+ * by the same name inside `[data-theme="..."]` blocks in `themes.css`. Because
+ * utilities reference the variables at use-site, overriding a token re-themes the
+ * entire tree at runtime with zero JavaScript.
+ */
+
+@import "tailwindcss";
+@import "./themes.css";
+
+/* Dark variant keyed off the theme attribute (not just the OS preference). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  /* --------------------------------- type --------------------------------- */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji";
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+
+  /* ------------------------------- brand scale ------------------------------ */
+  --color-brand-50: oklch(0.972 0.014 265);
+  --color-brand-100: oklch(0.936 0.030 265);
+  --color-brand-200: oklch(0.874 0.060 265);
+  --color-brand-300: oklch(0.796 0.101 265);
+  --color-brand-400: oklch(0.706 0.151 265);
+  --color-brand-500: oklch(0.620 0.190 265);
+  --color-brand-600: oklch(0.551 0.201 265);
+  --color-brand-700: oklch(0.483 0.181 265);
+  --color-brand-800: oklch(0.405 0.152 265);
+  --color-brand-900: oklch(0.332 0.121 265);
+  --color-brand-950: oklch(0.243 0.090 265);
+
+  /* -------------------------- neutral (slate-ish) --------------------------- */
+  --color-neutral-0: oklch(1 0 0);
+  --color-neutral-50: oklch(0.985 0.003 265);
+  --color-neutral-100: oklch(0.965 0.005 265);
+  --color-neutral-200: oklch(0.925 0.007 265);
+  --color-neutral-300: oklch(0.872 0.009 265);
+  --color-neutral-400: oklch(0.706 0.014 265);
+  --color-neutral-500: oklch(0.554 0.016 265);
+  --color-neutral-600: oklch(0.446 0.016 265);
+  --color-neutral-700: oklch(0.372 0.015 265);
+  --color-neutral-800: oklch(0.278 0.013 265);
+  --color-neutral-900: oklch(0.208 0.011 265);
+  --color-neutral-950: oklch(0.145 0.009 265);
+
+  /* ----------------------------- semantic tokens ----------------------------
+   * Concrete LIGHT defaults. `themes.css` overrides these *same names*, so
+   * utilities (`bg-surface`, `text-fg`, ...) re-theme at runtime with zero JS —
+   * including for arbitrarily nested subtrees.
+   */
+  --color-bg: oklch(0.988 0.003 265);
+  --color-surface: oklch(1 0 0);
+  --color-surface-raised: oklch(1 0 0);
+  --color-surface-sunken: oklch(0.968 0.005 265);
+
+  --color-fg: oklch(0.208 0.011 265);
+  --color-fg-muted: oklch(0.446 0.016 265);
+  --color-fg-subtle: oklch(0.554 0.016 265);
+  --color-fg-on-brand: oklch(0.99 0.005 265);
+
+  --color-border: oklch(0.925 0.007 265);
+  --color-border-strong: oklch(0.872 0.009 265);
+  --color-ring: oklch(0.551 0.201 265);
+  --color-overlay: oklch(0.145 0.009 265 / 0.55);
+
+  /* status: base / subtle background / readable foreground */
+  --color-success: oklch(0.627 0.164 150);
+  --color-success-subtle: oklch(0.955 0.032 150);
+  --color-success-fg: oklch(0.448 0.122 150);
+
+  --color-warning: oklch(0.760 0.158 76);
+  --color-warning-subtle: oklch(0.968 0.045 88);
+  --color-warning-fg: oklch(0.498 0.115 66);
+
+  --color-danger: oklch(0.584 0.222 25);
+  --color-danger-subtle: oklch(0.951 0.033 22);
+  --color-danger-fg: oklch(0.472 0.176 25);
+
+  --color-info: oklch(0.640 0.150 240);
+  --color-info-subtle: oklch(0.957 0.028 240);
+  --color-info-fg: oklch(0.470 0.122 245);
+
+  /* --------------------------------- radius -------------------------------- */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+
+  /* -------------------------------- shadows -------------------------------- */
+  --shadow-xs: 0 1px 2px 0 oklch(0.208 0.011 265 / 0.05);
+  --shadow-sm: 0 1px 3px 0 oklch(0.208 0.011 265 / 0.08), 0 1px 2px -1px oklch(0.208 0.011 265 / 0.08);
+  --shadow-md: 0 4px 6px -1px oklch(0.208 0.011 265 / 0.08), 0 2px 4px -2px oklch(0.208 0.011 265 / 0.08);
+  --shadow-lg: 0 10px 15px -3px oklch(0.208 0.011 265 / 0.08), 0 4px 6px -4px oklch(0.208 0.011 265 / 0.08);
+  --shadow-xl: 0 20px 25px -5px oklch(0.208 0.011 265 / 0.10), 0 8px 10px -6px oklch(0.208 0.011 265 / 0.10);
+
+  /* ------------------------------- animations ------------------------------- */
+  --animate-fade-in: fade-in 150ms ease-out;
+  --animate-scale-in: scale-in 120ms ease-out;
+  --animate-slide-up: slide-up 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-spin-slow: spin 1s linear infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+@keyframes progress-indeterminate {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(200%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ------------------------------- base layer ------------------------------- */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Shiki dual-theme highlighting: light by default, dark under [data-theme="dark"]. */
+  .shiki,
+  .shiki span {
+    color: var(--shiki-light);
+    background-color: transparent;
+  }
+
+  [data-theme="dark"] .shiki,
+  [data-theme="dark"] .shiki span {
+    color: var(--shiki-dark);
+  }
+}

@@ -1,0 +1,97 @@
+/**
+ * FlinchUI built-in themes.
+ *
+ * A theme is just a block of CSS-variable overrides. Because every component
+ * styles itself with semantic tokens (`bg-surface`, `text-fg`, `border-border`),
+ * overriding the tokens here re-themes any subtree — no JavaScript involved.
+ *
+ * Add your own by dropping in another `[data-theme="..."]` block.
+ */
+
+/* ------------------------------- dark ----------------------------------- */
+[data-theme="dark"] {
+  --color-bg: oklch(0.145 0.009 265);
+  --color-surface: oklch(0.185 0.011 265);
+  --color-surface-raised: oklch(0.230 0.013 265);
+  --color-surface-sunken: oklch(0.120 0.008 265);
+
+  --color-fg: oklch(0.965 0.004 265);
+  --color-fg-muted: oklch(0.780 0.010 265);
+  --color-fg-subtle: oklch(0.620 0.014 265);
+  --color-fg-on-brand: oklch(0.145 0.009 265);
+
+  --color-border: oklch(0.300 0.014 265);
+  --color-border-strong: oklch(0.400 0.016 265);
+  --color-ring: oklch(0.706 0.151 265);
+  --color-overlay: oklch(0.05 0.005 265 / 0.7);
+
+  --color-brand-50: oklch(0.243 0.090 265);
+  --color-brand-100: oklch(0.332 0.121 265);
+  --color-brand-500: oklch(0.680 0.170 265);
+  --color-brand-600: oklch(0.620 0.190 265);
+  --color-brand-700: oklch(0.706 0.151 265);
+
+  --color-success-subtle: oklch(0.290 0.060 150);
+  --color-success-fg: oklch(0.840 0.120 150);
+  --color-warning-subtle: oklch(0.320 0.060 80);
+  --color-warning-fg: oklch(0.880 0.110 88);
+  --color-danger-subtle: oklch(0.300 0.080 25);
+  --color-danger-fg: oklch(0.840 0.110 25);
+  --color-info-subtle: oklch(0.290 0.060 240);
+  --color-info-fg: oklch(0.830 0.100 240);
+
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.4);
+  --shadow-sm: 0 1px 3px 0 oklch(0 0 0 / 0.5);
+  --shadow-md: 0 4px 6px -1px oklch(0 0 0 / 0.5);
+  --shadow-lg: 0 10px 15px -3px oklch(0 0 0 / 0.55);
+  --shadow-xl: 0 20px 25px -5px oklch(0 0 0 / 0.6);
+}
+
+/* ------------------------------- violet --------------------------------- */
+[data-theme="violet"] {
+  --color-brand-500: oklch(0.606 0.219 305);
+  --color-brand-600: oklch(0.541 0.223 305);
+  --color-brand-700: oklch(0.470 0.196 305);
+  --color-ring: oklch(0.541 0.223 305);
+}
+
+/* ------------------------------- emerald -------------------------------- */
+[data-theme="emerald"] {
+  --color-brand-500: oklch(0.660 0.150 165);
+  --color-brand-600: oklch(0.590 0.130 165);
+  --color-brand-700: oklch(0.510 0.108 165);
+  --color-ring: oklch(0.590 0.130 165);
+}
+
+/* -------------------------------- amber --------------------------------- */
+[data-theme="amber"] {
+  --color-brand-500: oklch(0.760 0.158 76);
+  --color-brand-600: oklch(0.680 0.150 70);
+  --color-brand-700: oklch(0.590 0.130 66);
+  --color-fg-on-brand: oklch(0.208 0.011 265);
+  --color-ring: oklch(0.680 0.150 70);
+}
+
+/* --------------------------------- rose --------------------------------- */
+[data-theme="rose"] {
+  --color-brand-500: oklch(0.645 0.216 12);
+  --color-brand-600: oklch(0.578 0.222 12);
+  --color-brand-700: oklch(0.505 0.196 12);
+  --color-ring: oklch(0.578 0.222 12);
+}
+
+/* ---------------------------- high-contrast ----------------------------- */
+[data-theme="high-contrast"] {
+  --color-bg: oklch(1 0 0);
+  --color-surface: oklch(1 0 0);
+  --color-surface-raised: oklch(1 0 0);
+  --color-surface-sunken: oklch(0.96 0 0);
+
+  --color-fg: oklch(0 0 0);
+  --color-fg-muted: oklch(0.25 0 0);
+  --color-fg-subtle: oklch(0.35 0 0);
+
+  --color-border: oklch(0 0 0);
+  --color-border-strong: oklch(0 0 0);
+  --color-ring: oklch(0 0 0);
+}

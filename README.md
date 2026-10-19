@@ -1,167 +1,157 @@
-# FlinchUI — Config-Driven UI Engine
+# FlinchUI
 
-A production-ready, schema-driven React component library built for applications
-serving millions of concurrent users. Visual definitions are pure, deterministic,
-JSON-serializable trees — friendly to human developers and autonomous AI agents alike.
+Copy-paste React components you own. Built on Tailwind CSS v4 design tokens, styled
+with static utilities, themable at runtime, and documented like Bootstrap — with live
+previews and copyable source for every example.
 
-## Architectural pillars
+```bash
+npx flinchui add button
+```
 
-| Vector | Mechanism |
-| --- | --- |
-| **Zero-bundle bleed** | Zod parsing + sanitization executes inside React Server Components. Only validated JSON crosses to the client; Zod never ships in the browser bundle. |
-| **Dynamic chunking** | `next/dynamic` registry loads a component's code only when the active schema references it. Absent components are never downloaded. |
-| **Zero-runtime styling** | Tailwind CSS v4 atomic tokens only. No Emotion, no styled-components, no inline styles — style changes are cheap string alterations with no layout thrashing. |
-| **60 FPS runtime** | Every primitive and every tree node is `React.memo`-scoped with `useCallback`/`useMemo`-stabilized handlers. Typing in one `Input` re-renders only that leaf. |
-| **Agent-safe contracts** | Strict TypeScript + Zod schemas. Components contain zero business logic; all behavior is declared via `actionId` and pipelined into a host-supplied `onAction` event bus. |
+No runtime package. No provider. No CSS-in-JS. The CLI copies the component and its
+imports into your repository, where they become ordinary files you can edit.
+
+## Principles
+
+- **Zero runtime styling.** Every class is a static Tailwind utility resolved at build
+  time. There is no style recalculation and no hydration cost for styling.
+- **The source is yours.** Components live in `src/components/ui/`, not in
+  `node_modules`. Change anything, delete anything, keep the rest.
+- **Semantic tokens.** Components reference `bg-surface` and `text-fg-muted`, never
+  `bg-white` or `text-slate-600`. Swap a block of CSS variables to re-theme the whole
+  application — including a subtree.
+- **Native first.** Dialogs use `<dialog>`, accordions use `<details>`, switches use a
+  real `<button>` with `role="switch"`. The platform already implements the hard parts.
+- **Dependencies are opt-in.** Base components need only React and Tailwind. Popover,
+  Tooltip, Dropdown Menu, and Hover Card require `@floating-ui/react` explicitly.
+- **Infinitely extensible.** Variant maps are exported, `asChild` re-targets any
+  component onto your own element, and `className` always merges last.
 
 ## Quickstart
+
+Requires Node 18+ and Tailwind CSS v4.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. The demo page validates its schema on the server
-(RSC), streams the clean JSON to a client host, and renders the tree with
-on-demand code-split primitives. Open the console to watch `ActionEvent`
-objects flow through the pipeline as you interact.
+Open <http://localhost:3000>. The repository is both the component library and its
+documentation site.
 
 ```bash
 npm run typecheck   # strict tsc --noEmit
-npm run build       # production build
+npm run build       # production build (static docs)
+npm run registry    # regenerate packages/cli/registry.json
+```
+
+## Add components to your project
+
+The CLI is repo-local while the library is in preview:
+
+```bash
+# from this repository
+node packages/cli/bin/flinchui.mjs add button badge
+
+# once published
+npx flinchui add dialog drawer toast
+npx flinchui init
+```
+
+It copies the component, walks its imports for shared helpers, installs any opt-in
+dependencies, and records what it wrote in `components.json`. Existing files are
+skipped unless you pass `--overwrite`.
+
+```bash
+flinchui add <slug...>   # copy components
+flinchui list            # browse the registry
+flinchui info <slug>     # files, dependencies, props
+flinchui init            # tokens + shared helpers
 ```
 
 ## Project structure
 
 ```text
 src/
-├── types/
-│   └── configUI.ts                # Declarative layout schemas & component prop contracts
-├── lib/
-│   └── validation/
-│       └── uiValidator.ts         # Zod validation, sanitization, id stabilization
+├── app/
+│   ├── (docs)/                 # docs shell, component pages, guides
+│   ├── api/registry/           # machine-readable registry (JSON)
+│   ├── llms.txt/               # LLM index
+│   ├── llms-full.txt/          # full machine-readable reference
+│   └── page.tsx                # landing page
 ├── components/
-│   ├── config-ui/
-│   │   ├── ConfigRenderer.tsx     # Async registry router & recursive iterator (client)
-│   │   ├── SafeComponentBoundary.tsx # Per-node error isolation (client)
-│   │   └── primitives/
-│   │       ├── Container.tsx      # Structural flex/grid block
-│   │       ├── Card.tsx           # Presentational surface
-│   │       ├── Heading.tsx        # Typography element
-│   │       ├── Button.tsx         # Transactional action primitive
-│   │       └── Input.tsx          # Controlled state field container
-│   └── DemoHost.tsx               # Example client host wiring the action bus
-└── app/
-    ├── layout.tsx                 # RSC shell
-    ├── page.tsx                   # RSC page: validate → render
-    └── globals.css                # Tailwind v4 entry
+│   ├── ui/                     # ← the library (66 components)
+│   ├── docs/                   # docs-only building blocks
+│   ├── config-ui/              # advanced JSON renderer
+│   └── DemoHost.tsx            # config-renderer client host
+├── content/
+│   ├── examples/               # per-category documentation examples
+│   ├── guides.tsx              # prose guides
+│   └── demos.tsx               # client-side interactive demos
+├── lib/
+│   ├── cn.ts                   # class joiner (no dependencies)
+│   ├── variants.ts             # variant-map resolver
+│   ├── slot.tsx                # asChild implementation
+│   ├── nav.ts / registry.ts    # nav + registry helpers
+│   ├── llms.ts                 # llms.txt generators
+│   └── validation/             # config-renderer Zod validator
+├── registry/
+│   ├── components.ts           # single source of truth
+│   └── guides.ts               # guide metadata
+└── styles/
+    ├── tokens.css              # design tokens + base layer
+    └── themes.css              # light, dark, violet, emerald, amber, rose, high contrast
+
+packages/cli/                   # repo-local `flinchui` CLI
 ```
 
-## Usage
+## Theming
 
-### 1. Author the schema (JSON)
+Themes are CSS variable blocks selected by an attribute on any ancestor:
 
-```json
-{
-  "version": "1.0.0",
-  "root": {
-    "id": "page-root",
-    "type": "Container",
-    "display": "flex",
-    "direction": "column",
-    "gap": "lg",
-    "children": [
-      { "id": "title", "type": "Heading", "level": 1, "text": "Welcome" },
-      {
-        "id": "cta",
-        "type": "Button",
-        "actionId": "checkout.start",
-        "label": "Checkout",
-        "variant": "primary",
-        "payload": { currency: "USD" }
-      }
-    ]
-  }
+```html
+<html data-theme="dark">
+```
+
+```css
+/* your own theme */
+[data-theme="ocean"] {
+  --color-bg: oklch(0.98 0.01 220);
+  --color-brand-600: oklch(0.54 0.13 220);
+  --color-ring: oklch(0.54 0.13 220);
 }
 ```
 
-### 2. Validate on the server (RSC)
+Because utilities resolve the variables at use-site, changing the attribute re-themes
+every component with zero JavaScript and no re-render.
 
-```tsx
-import { validateAndSanitizeUI } from '@/lib/validation/uiValidator';
+## Adding a component
 
-export default function Page() {
-  // Never throws. Returns PageLayoutSchema | null.
-  const schema = validateAndSanitizeUI(rawUntrustedPayload);
-  if (schema === null) return <InvalidConfigNotice />;
-  return <ClientHost schema={schema} />;
-}
-```
+1. Write `src/components/ui/my-component.tsx` following the conventions in
+   [`AGENTS.md`](./AGENTS.md).
+2. Register it in `src/registry/components.ts` — sidebar, search, API, CLI, and AI
+   surfaces all read from there.
+3. Add an example in `src/content/examples/<category>.tsx`.
 
-### 3. Render on the client
+The docs page, install command, props table, and machine-readable entries are
+generated automatically.
 
-```tsx
-'use client';
-import { ConfigRenderer } from '@/components/config-ui/ConfigRenderer';
+## AI integration
 
-<ConfigRenderer
-  schema={schema}
-  onAction={(event) => eventBus.dispatch(event.actionId, event)}
-/>
-```
+- `GET /api/registry` — the full registry as JSON.
+- `GET /api/registry/<slug>` — one component with files and dependencies.
+- `GET /llms.txt` — a compact index for context windows.
+- `GET /llms-full.txt` — the complete reference: tokens, rules, components, props.
+- [`PROMPT.md`](./PROMPT.md) — an instruction set for agents adding components.
 
-## Node catalog
+## Config renderer (advanced)
 
-| Node | Required props | Optional props |
-| --- | --- | --- |
-| `Container` | `id`, `children` | `display`, `direction`, `wrap`, `gap`, `align`, `justify`, `columns`, `className`, `testId`, `ariaLabel` |
-| `Card` | `id`, `children` | `variant`, `padding`, `radius`, `className`, `testId`, `ariaLabel` |
-| `Heading` | `id`, `level`, `text` | `align`, `truncate`, `className`, `testId`, `ariaLabel` |
-| `Button` | `id`, `actionId`, `label` | `variant`, `size`, `disabled`, `fullWidth`, `payload`, `className`, `testId`, `ariaLabel` |
-| `Input` | `id`, `name` | `label`, `placeholder`, `kind`, `required`, `disabled`, `readOnly`, `defaultValue`, `helperText`, `actionId`, `payload`, `constraints`, `className`, `testId` |
+The original JSON-driven engine still ships for runtime-generated UI (CMS pages,
+feature-flag layouts, agents that assemble screens). Payloads are validated and
+sanitized on the server by `validateAndSanitizeUI`, then rendered by `ConfigRenderer`
+from a closed set of primitives. See `/docs/config-renderer` for the pipeline and a
+live demo.
 
-All design tokens are closed enums (e.g. `gap: 'xs' | 'sm' | 'md' | 'lg' | 'xl'`),
-so styles stay deterministic and auditable.
+## License
 
-## Action pipeline
-
-Primitives never call business logic. `Button` emits `click`; `Input` emits
-`change`, `blur`, and `submit` (Enter). Each `ActionEvent` carries
-`{ actionId, nodeId, event, value?, payload?, timestamp }` and flows into the
-single host-supplied `onAction` handler, which dispatches to the application's
-event bus.
-
-## Security model
-
-- Strict Zod parsing with `.strict()` objects — unknown keys, wrong types, and
-  invalid enums reject the entire payload.
-- `className` tokens pass a character allowlist and a script-injection blocklist
-  (`javascript:`, `expression(`, `url(`, quotes, angle brackets, …).
-- Text fields are stripped of `<script>` tags and control characters, then
-  length-capped.
-- `constraints.pattern` must be a compilable regular expression.
-- Structural budgets: tree depth ≤ 32, total nodes ≤ 5,000, children per node ≤ 250.
-- Missing or malformed node ids are replaced with deterministic path-based ids
-  (`n-root-0-2`), so agent-authored payloads stay renderable.
-- Each node renders inside a `SafeComponentBoundary`; a broken branch is
-  replaced by a clean fallback widget while the rest of the tree stays live.
-
-## Extending the registry
-
-1. Add the node type to `NODE_TYPES` and define its interface in `src/types/configUI.ts`.
-2. Mirror it with a strict Zod schema in `src/lib/validation/uiValidator.ts`.
-3. Implement the primitive in `src/components/config-ui/primitives/` — full
-   `React.memo`, static token maps, `actionId`-only events.
-4. Register a chunk factory in `CHUNK_FACTORIES` inside `ConfigRenderer.tsx`.
-
-Host-side component overrides (white-labeling, A/B tests) can be injected via the
-`components` prop of `ConfigRenderer` without touching the registry.
-
-## Performance notes
-
-- Chunk wrappers are cached in a module-level `Map`, so `dynamic()` is constructed
-  once per node type and component identity is stable across renders.
-- Chunk resolution happens per-node inside `useMemo` — unreferenced node types
-  never trigger an import.
-- All Tailwind classes exist as literal strings in static maps, so the v4
-  scanner emits exactly the utilities the schema can produce — nothing more.
+MIT — see [LICENSE](./LICENSE).

@@ -20,7 +20,7 @@
 
 import dynamic from 'next/dynamic';
 import { memo, useMemo } from 'react';
-import type { ComponentType, ErrorInfo, ReactNode } from 'react';
+import type { ComponentType } from 'react';
 import type { ActionHandler, NodeType, PageLayoutSchema, UINode } from '../../types/configUI';
 import { SafeComponentBoundary } from './SafeComponentBoundary';
 
