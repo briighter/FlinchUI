@@ -30,7 +30,7 @@ import { Grid } from '@/components/ui/grid';
 import { HStack, VStack } from '@/components/ui/stack';
 import { FolderIcon, BoltIcon } from '@/components/ui/icons';
 import { Example, ExampleGroup } from '@/components/docs/example';
-import { BadgeRemoveDemo, ChipRemoveDemo } from '@/content/demos';
+import { BadgeRemoveDemo, ChipRemoveDemo, DataTableDemo } from '@/content/demos';
 
 export function DataDisplayDocs({ slug }: { slug: string }) {
   if (slug === 'card') {
@@ -518,6 +518,47 @@ export function DataDisplayDocs({ slug }: { slug: string }) {
   return \`Hello, \${name}!\`;
 }`}
           />
+        </Example>
+      </ExampleGroup>
+    );
+  }
+
+  if (slug === 'data-table') {
+    return (
+      <ExampleGroup>
+        <Example
+          title="Sortable, selectable, pinned"
+          description="All six invoices demo columns: a pinned leading column, right-aligned sortable amounts, and a controlled selection readout."
+          code={`type Row = { id: string; customer: string; amount: number; status: Status; issued: string };
+
+const columns: DataTableColumn<Row>[] = [
+  { key: 'invoice', header: 'Invoice', pinned: true,
+    cell: (row) => <span className="font-mono text-xs">{row.id}</span> },
+  { key: 'customer', header: 'Customer', cell: (row) => row.customer },
+  { key: 'amount', header: 'Amount', align: 'right',
+    sortValue: (row) => row.amount,
+    cell: (row) => formatMoney(row.amount) },
+  { key: 'status', header: 'Status', sortValue: (row) => row.status,
+    cell: (row) => <Badge tone={toneFor(row.status)}>{row.status}</Badge> },
+  { key: 'issued', header: 'Issued', align: 'right',
+    sortValue: (row) => row.issued, cell: (row) => row.issued },
+];
+
+<DataTable
+  label="Invoices"
+  columns={columns}
+  rows={ROWS}
+  rowId={(row) => row.id}
+  selectable
+  selectedIds={selected}
+  onSelectionChange={setSelected}
+  defaultSort={{ key: 'issued', direction: 'desc' }}
+  stickyHeader
+  density="compact"
+  containerClassName="max-h-64 rounded-lg border border-border"
+/>`}
+        >
+          <DataTableDemo />
         </Example>
       </ExampleGroup>
     );

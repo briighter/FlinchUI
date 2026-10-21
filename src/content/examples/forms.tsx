@@ -9,7 +9,7 @@ import { Slider } from '@/components/ui/slider';
 import { HStack, VStack } from '@/components/ui/stack';
 import { SearchIcon, LockIcon } from '@/components/ui/icons';
 import { Example, ExampleGroup } from '@/components/docs/example';
-import { FormFieldDemo, SwitchDemo, SwitchSizesDemo } from '@/content/demos';
+import { FormFieldDemo, SwitchDemo, SwitchSizesDemo, DatePickerDemo, DatePickerRangeDemo } from '@/content/demos';
 
 export function FormsDocs({ slug }: { slug: string }) {
   if (slug === 'form-field') {
@@ -268,6 +268,41 @@ export function FormsDocs({ slug }: { slug: string }) {
           <div className="max-w-sm">
             <Slider defaultValue={40} min={0} max={100} aria-label="Volume" />
           </div>
+        </Example>
+      </ExampleGroup>
+    );
+  }
+
+  if (slug === 'date-picker') {
+    return (
+      <ExampleGroup>
+        <Example
+          title="Single date"
+          description={'A month grid with bounds, plus a native `<input type="date">` for typed entry and mobile pickers.'}
+          code={`const [date, setDate] = useState<Date | null>(new Date(2026, 9, 14));
+
+<DatePicker
+  value={date}
+  onChange={setDate}
+  min={new Date(2026, 0, 1)}
+  max={new Date(2026, 11, 31)}
+  label="Appointment date"
+/>`}
+        >
+          <DatePickerDemo />
+        </Example>
+
+        <Example
+          title="Range selection"
+          description="Two clicks choose an inclusive window: first sets the start, the second sets the end (or resets if earlier)."
+          code={`const [range, setRange] = useState<DateRange>({
+  start: new Date(2026, 9, 5),
+  end: new Date(2026, 9, 19),
+});
+
+<DatePicker mode="range" rangeValue={range} onRangeChange={setRange} label="Reporting window" />`}
+        >
+          <DatePickerRangeDemo />
         </Example>
       </ExampleGroup>
     );

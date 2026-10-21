@@ -1,7 +1,7 @@
 {
   "$comment": "Generated from src/registry/components.ts. Run `npm run registry` to refresh.",
   "version": "0.2.0",
-  "generatedAt": "2026-10-19T04:35:54.494Z",
+  "generatedAt": "2026-10-21T08:08:16.653Z",
   "categories": [
     {
       "id": "layout",
@@ -432,6 +432,73 @@
         "navbar",
         "sidebar",
         "page-header"
+      ]
+    },
+    {
+      "slug": "resizable",
+      "name": "Resizable",
+      "category": "layout",
+      "description": "A two-pane split with a draggable, keyboard-operable divider.",
+      "intro": "Resizable drives one CSS custom property from a pointer or the arrow keys — no resize-observer library.",
+      "status": "stable",
+      "preview": true,
+      "files": [
+        "src/components/ui/resizable.tsx"
+      ],
+      "props": [
+        {
+          "name": "children",
+          "type": "[ReactNode, ReactNode]",
+          "description": "Exactly two panes; the first is variable-width."
+        },
+        {
+          "name": "orientation",
+          "type": "'horizontal' | 'vertical'",
+          "default": "'horizontal'",
+          "description": "Split direction."
+        },
+        {
+          "name": "size",
+          "type": "number",
+          "description": "Controlled first-pane percentage (0–100)."
+        },
+        {
+          "name": "defaultSize",
+          "type": "number",
+          "default": "50",
+          "description": "Uncontrolled initial size."
+        },
+        {
+          "name": "min / max",
+          "type": "number",
+          "default": "15 / 85",
+          "description": "Size bounds in percent."
+        },
+        {
+          "name": "step",
+          "type": "number",
+          "default": "2",
+          "description": "Keyboard adjustment step."
+        },
+        {
+          "name": "onSizeChange",
+          "type": "(size: number) => void",
+          "description": "Fires while dragging and on key press."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "'Resize panes'",
+          "description": "Divider accessible name."
+        }
+      ],
+      "a11y": [
+        "Divider is `role=\"separator\"` with value semantics; arrows, Home/End, and Enter (reset) all work."
+      ],
+      "related": [
+        "app-shell",
+        "sidebar",
+        "split-text"
       ]
     },
     {
@@ -1376,6 +1443,71 @@
       ]
     },
     {
+      "slug": "date-picker",
+      "name": "DatePicker",
+      "category": "forms",
+      "description": "A month grid for mouse and keyboard, backed by a native date input.",
+      "intro": "DatePicker offers single and range modes, min/max bounds, and a roving-tab-stop grid, with a native `<input type=\"date\">` alongside for typed and mobile entry.",
+      "status": "stable",
+      "preview": true,
+      "files": [
+        "src/components/ui/date-picker.tsx"
+      ],
+      "props": [
+        {
+          "name": "mode",
+          "type": "'single' | 'range'",
+          "default": "'single'",
+          "description": "Pick one date or an inclusive pair."
+        },
+        {
+          "name": "value",
+          "type": "Date | null",
+          "description": "Controlled selected date (`value`/`onChange`)."
+        },
+        {
+          "name": "rangeValue",
+          "type": "{ start: Date | null; end: Date | null }",
+          "description": "Controlled range state."
+        },
+        {
+          "name": "min / max",
+          "type": "Date",
+          "description": "Inclusive selectable bounds."
+        },
+        {
+          "name": "weekStartsOn",
+          "type": "0 | 1",
+          "default": "0",
+          "description": "Sunday or Monday first."
+        },
+        {
+          "name": "defaultViewMonth",
+          "type": "Date",
+          "description": "Month shown on open instead of the selected one."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Accessible name for the grid."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable every interaction."
+        }
+      ],
+      "a11y": [
+        "Grid has one tab stop; arrows move by day/week, PageUp/PageDown by month, Home/End by week edge."
+      ],
+      "related": [
+        "input",
+        "slider",
+        "button"
+      ]
+    },
+    {
       "slug": "card",
       "name": "Card",
       "category": "data-display",
@@ -1570,6 +1702,91 @@
       ],
       "related": [
         "description-list",
+        "pagination"
+      ]
+    },
+    {
+      "slug": "data-table",
+      "name": "DataTable",
+      "category": "data-display",
+      "description": "Sorting, selection, and a pinned leading column on top of a semantic table.",
+      "intro": "DataTable is a client component that composes Table and Checkbox: sort by any column with a `sortValue`, select rows, keep the header sticky, and render cells with plain functions.",
+      "status": "stable",
+      "preview": true,
+      "files": [
+        "src/components/ui/data-table.tsx"
+      ],
+      "props": [
+        {
+          "name": "columns",
+          "type": "DataTableColumn<T>[]",
+          "description": "`key`, `header`, `cell(row)`, optional `sortValue`, `align`, `pinned`."
+        },
+        {
+          "name": "rows",
+          "type": "T[]",
+          "description": "Row data in render order (pre-filter if you need filtering)."
+        },
+        {
+          "name": "rowId",
+          "type": "(row: T) => string",
+          "description": "Stable identity for selection and keys."
+        },
+        {
+          "name": "selectable",
+          "type": "boolean",
+          "default": "false",
+          "description": "Add a checkbox column."
+        },
+        {
+          "name": "selectedIds",
+          "type": "string[]",
+          "description": "Controlled selection."
+        },
+        {
+          "name": "onSelectionChange",
+          "type": "(ids: string[]) => void",
+          "description": "Selection callback."
+        },
+        {
+          "name": "sort",
+          "type": "{ key: string; direction: \"asc\" | \"desc\" } | null",
+          "description": "Controlled sort. Unset cycles asc → desc → none."
+        },
+        {
+          "name": "onSortChange",
+          "type": "(sort) => void",
+          "description": "Sort callback."
+        },
+        {
+          "name": "onRowClick",
+          "type": "(row: T) => void",
+          "description": "Whole-row click handler."
+        },
+        {
+          "name": "stickyHeader",
+          "type": "boolean",
+          "default": "false",
+          "description": "Keep `<thead>` in view while the table scrolls."
+        },
+        {
+          "name": "density",
+          "type": "'compact' | 'normal'",
+          "default": "'normal'",
+          "description": "Row height."
+        },
+        {
+          "name": "caption / label",
+          "type": "ReactNode / string",
+          "description": "Table caption and accessible name."
+        }
+      ],
+      "a11y": [
+        "Sortable headers set `aria-sort`; the select-all checkbox reports `indeterminate` for partial selection."
+      ],
+      "related": [
+        "table",
+        "checkbox",
         "pagination"
       ]
     },
@@ -2755,6 +2972,74 @@
       ]
     },
     {
+      "slug": "command-menu",
+      "name": "CommandMenu",
+      "category": "overlays",
+      "description": "A ⌘K command palette with grouped, filtered items.",
+      "intro": "CommandMenu is a native `<dialog>` combobox: type to filter across groups, arrow keys walk the flattened results, Enter commits. Pass `shortcut` to bind Meta/Ctrl to a key.",
+      "status": "stable",
+      "preview": true,
+      "files": [
+        "src/components/ui/command-menu.tsx"
+      ],
+      "props": [
+        {
+          "name": "open",
+          "type": "boolean",
+          "required": true,
+          "description": "Dialog open state."
+        },
+        {
+          "name": "onOpenChange",
+          "type": "(open: boolean) => void",
+          "required": true,
+          "description": "Open-state callback (Esc and selection included)."
+        },
+        {
+          "name": "groups",
+          "type": "CommandGroup[]",
+          "required": true,
+          "description": "Labelled item groups: `value`, `label`, `description`, `keywords`, `icon`, `shortcut`."
+        },
+        {
+          "name": "onSelect",
+          "type": "(value: string, item) => void",
+          "required": true,
+          "description": "Fires with the chosen item, then the menu closes."
+        },
+        {
+          "name": "shortcut",
+          "type": "string",
+          "description": "Single key that toggles the menu with Meta/Ctrl, e.g. `k`."
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "default": "'Search commands…'",
+          "description": "Input placeholder and aria-label."
+        },
+        {
+          "name": "emptyMessage",
+          "type": "string",
+          "description": "Shown when the query matches nothing."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "'Command menu'",
+          "description": "Accessible dialog name."
+        }
+      ],
+      "a11y": [
+        "Combobox + listbox with `aria-activedescendant`; filtering resets the active row to the top."
+      ],
+      "related": [
+        "dialog",
+        "dropdown-menu",
+        "search-input"
+      ]
+    },
+    {
       "slug": "breadcrumb",
       "name": "Breadcrumb",
       "category": "navigation",
@@ -3053,6 +3338,133 @@
       ],
       "related": [
         "app-shell"
+      ]
+    },
+    {
+      "slug": "tree-view",
+      "name": "TreeView",
+      "category": "navigation",
+      "description": "An ARIA tree with roving tabindex, expand/collapse, and optional drag and drop.",
+      "intro": "TreeView renders the WAI-ARIA tree pattern flat with `aria-level`, so one tab stop covers the whole outline. Pass `onMove` to enable native HTML5 dragging with before/inside/after drop intent.",
+      "status": "stable",
+      "preview": true,
+      "files": [
+        "src/components/ui/tree-view.tsx"
+      ],
+      "props": [
+        {
+          "name": "nodes",
+          "type": "TreeNodeData[]",
+          "required": true,
+          "description": "`id`, `label`, `children`, `icon`, `disabled`."
+        },
+        {
+          "name": "expandedIds",
+          "type": "string[]",
+          "description": "Controlled expanded set."
+        },
+        {
+          "name": "defaultExpandedIds",
+          "type": "string[]",
+          "default": "[]",
+          "description": "Initially expanded node ids."
+        },
+        {
+          "name": "onExpandedChange",
+          "type": "(ids: string[]) => void",
+          "description": "Expansion callback."
+        },
+        {
+          "name": "selectedId",
+          "type": "string | null",
+          "description": "Controlled selection."
+        },
+        {
+          "name": "onSelect",
+          "type": "(id: string | null) => void",
+          "description": "Selection callback."
+        },
+        {
+          "name": "onMove",
+          "type": "(draggedId, targetId, position) => void",
+          "description": "Opt-in drag and drop; `position` is `before` | `inside` | `after`."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Accessible name for the tree."
+        }
+      ],
+      "a11y": [
+        "Arrows walk the outline (Right expands or enters, Left collapses or exits), Enter/Space select, Home/End jump."
+      ],
+      "related": [
+        "sidebar",
+        "breadcrumb",
+        "accordion"
+      ]
+    },
+    {
+      "slug": "carousel",
+      "name": "Carousel",
+      "category": "navigation",
+      "description": "Scroll-snap slides with buttons, dots, and loop support.",
+      "intro": "Carousel never emulates scrolling — the track is a real overflow container with `scroll-snap`, so touch and trackpad work natively while the controls call `scrollBy`.",
+      "status": "stable",
+      "preview": true,
+      "files": [
+        "src/components/ui/carousel.tsx"
+      ],
+      "props": [
+        {
+          "name": "slides",
+          "type": "ReactNode[]",
+          "required": true,
+          "description": "One entry per slide, in order."
+        },
+        {
+          "name": "slidesPerView",
+          "type": "1 | 2 | 3",
+          "default": "1",
+          "description": "Visible slide count (fixed widths)."
+        },
+        {
+          "name": "showControls",
+          "type": "boolean",
+          "default": "true",
+          "description": "Previous/next buttons."
+        },
+        {
+          "name": "showDots",
+          "type": "boolean",
+          "default": "true",
+          "description": "Position dots (a wrapper toggle). "
+        },
+        {
+          "name": "loop",
+          "type": "boolean",
+          "default": "false",
+          "description": "Wrap from the ends."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "'Carousel'",
+          "description": "Accessible region name."
+        },
+        {
+          "name": "slideClassName",
+          "type": "string",
+          "description": "Extra classes for every slide panel."
+        }
+      ],
+      "a11y": [
+        "Region is `aria-roledescription=\"carousel\"`; slides carry \"n of m\" labels; arrow keys page the track."
+      ],
+      "related": [
+        "tabs",
+        "pagination",
+        "accordion"
       ]
     }
   ]

@@ -9,7 +9,7 @@ import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { InfoIcon, SettingsIcon, ChevronDownIcon, HeartIcon } from '@/components/ui/icons';
 import { Example, ExampleGroup } from '@/components/docs/example';
-import { DialogDemo, DrawerDemo, DropdownMenuDemo } from '@/content/demos';
+import { DialogDemo, DrawerDemo, DropdownMenuDemo, CommandMenuDemo } from '@/content/demos';
 
 export function OverlaysDocs({ slug }: { slug: string }) {
   if (slug === 'dialog') {
@@ -256,6 +256,46 @@ export function OverlaysDocs({ slug }: { slug: string }) {
             </Button>
             <DropdownMenuDemo />
           </HStack>
+        </Example>
+      </ExampleGroup>
+    );
+  }
+
+  if (slug === 'command-menu') {
+    return (
+      <ExampleGroup>
+        <Example
+          title="Command palette"
+          description="Type to filter, arrow keys to walk, Enter to commit. Pass `shortcut` to bind Meta/Ctrl+K yourself."
+          code={`const [open, setOpen] = useState(false);
+
+<CommandMenu
+  open={open}
+  onOpenChange={setOpen}
+  shortcut="k"
+  groups={[
+    {
+      label: 'Actions',
+      items: [
+        { value: 'new', label: 'New deployment', shortcut: 'N' },
+        { value: 'rollback', label: 'Roll back', shortcut: 'R' },
+        { value: 'copy', label: 'Copy branch URL', icon: <CopyIcon /> },
+      ],
+    },
+    {
+      label: 'Navigate',
+      items: [{ value: 'logs', label: 'Runtime logs' }],
+    },
+  ]}
+  onSelect={(value) => run(value)}
+/>`}
+        >
+          <div className="flex flex-col gap-2">
+            <CommandMenuDemo />
+            <p className="text-xs text-fg-subtle">
+              Press Ctrl+K (or ⌘K) anywhere on this page — the window listens globally.
+            </p>
+          </div>
         </Example>
       </ExampleGroup>
     );

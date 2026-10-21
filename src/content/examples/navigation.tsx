@@ -16,7 +16,7 @@ import {
   PlusIcon,
 } from '@/components/ui/icons';
 import { Example, ExampleGroup } from '@/components/docs/example';
-import { PaginationDemo } from '@/content/demos';
+import { PaginationDemo, TreeViewDemo, TreeViewDragDemo, CarouselDemo } from '@/content/demos';
 
 export function NavigationDocs({ slug }: { slug: string }) {
   if (slug === 'breadcrumb') {
@@ -312,6 +312,64 @@ export function NavigationDocs({ slug }: { slug: string }) {
               <p className="p-4 pt-10 text-xs text-fg-subtle">Preview area</p>
             </div>
           </VStack>
+        </Example>
+      </ExampleGroup>
+    );
+  }
+
+  if (slug === 'tree-view') {
+    return (
+      <ExampleGroup>
+        <Example
+          title="Project outline"
+          description="The WAI-ARIA tree pattern rendered flat with `aria-level`; one tab stop covers the whole outline."
+          code={`const [selected, setSelected] = useState<string | null>('components');
+
+<TreeView
+  label="Project files"
+  nodes={FILES}
+  defaultExpandedIds={['src', 'components']}
+  selectedId={selected}
+  onSelect={setSelected}
+/>`}
+        >
+          <TreeViewDemo />
+        </Example>
+
+        <Example
+          title="Drag to rearrange"
+          description="Pass `onMove` to opt into native HTML5 dragging; the callback receives before/inside/after intent."
+          code={`<TreeView
+  nodes={tree}
+  expandedIds={expanded}
+  onExpandedChange={setExpanded}
+  onMove={(draggedId, targetId, position) => {
+    if (!isDescendantFree(draggedId, targetId)) return;
+    setTree(moveNode(tree, draggedId, targetId, position));
+  }}
+/>`}
+        >
+          <TreeViewDragDemo />
+        </Example>
+      </ExampleGroup>
+    );
+  }
+
+  if (slug === 'carousel') {
+    return (
+      <ExampleGroup>
+        <Example
+          title="Release notes"
+          description={`Native scroll snapping — two visible slides, arrow keys page the track, and the dots scroll directly.`}
+          code={`<Carousel
+  label="Release notes"
+  slidesPerView={2}
+  slides={SLIDES.map((slide) => (
+    <Panel key={slide.title} {...slide} />
+  ))}
+/>`}
+        >
+          <CarouselDemo />
         </Example>
       </ExampleGroup>
     );

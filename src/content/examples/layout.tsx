@@ -7,9 +7,11 @@ import { Separator } from '@/components/ui/separator';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
 import { AppShell } from '@/components/ui/app-shell';
+import { Resizable } from '@/components/ui/resizable';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Example, ExampleGroup } from '@/components/docs/example';
+import { ResizableDemo } from '@/content/demos';
 
 const Box3 = ({ label }: { label: string }) => (
   <div className="flex h-14 min-w-24 flex-1 items-center justify-center rounded-lg border border-brand-200/70 bg-brand-50 px-4 text-sm font-medium text-brand-700 dark:border-brand-800 dark:bg-brand-900/40 dark:text-brand-200">
@@ -313,6 +315,25 @@ export function LayoutDocs({ slug }: { slug: string }) {
                 Main content
               </div>
             </AppShell>
+          </div>
+        </Example>
+      </ExampleGroup>
+    );
+  }
+
+  if (slug === 'resizable') {
+    return (
+      <ExampleGroup>
+        <Example
+          title="Editor split"
+          description="Drag the divider, double-click to reset, or focus it and use the arrow keys — a live CSS custom property drives the split."
+          code={`<Resizable defaultSize={38} label="Editor split" className="h-56 rounded-lg border border-border">
+  <FileList />
+  <Editor />
+</Resizable>`}
+        >
+          <div className="w-full max-w-lg">
+            <ResizableDemo />
           </div>
         </Example>
       </ExampleGroup>

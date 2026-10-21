@@ -190,10 +190,22 @@ export { Pagination, type PaginationProps } from './pagination';
 export { Stepper, type StepperProps, type Step } from './stepper';
 export { Navbar, type NavbarProps, type NavItem } from './navbar';
 export { Sidebar, type SidebarProps, type SidebarItem, type SidebarSection } from './sidebar';
+export { TreeView, type TreeViewProps, type TreeNodeData, type DropPosition } from './tree-view';
+export { Carousel, type CarouselProps } from './carousel';
 export { Footer, type FooterProps, type FooterColumn } from './footer';
 export { PageHeader, type PageHeaderProps } from './page-header';
 export { AppShell, type AppShellProps } from './app-shell';
 export { SkipLink, type SkipLinkProps } from './skip-link';
+
+/* ---------------------- wave 3: rich interaction --------------------------- */
+export { CommandMenu, type CommandMenuProps, type CommandItem, type CommandGroup } from './command-menu';
+export { DataTable, type DataTableProps, type DataTableColumn, type DataTableSort } from './data-table';
+export {
+  DatePicker,
+  type DatePickerProps,
+  type DateRange,
+} from './date-picker';
+export { Resizable, type ResizableProps } from './resizable';
 
 /* ---------------------------------- icons ---------------------------------- */
 export * from './icons';

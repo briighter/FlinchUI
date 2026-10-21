@@ -1413,13 +1413,13 @@ function Roadmap() {
           },
           {
             title: 'Wave 3 — depth',
-            status: 'In progress',
-            body: 'Date picker, command menu, data table, tree view, carousel, resizable panels, and richer data visualization primitives.',
+            status: 'Shipped',
+            body: 'Command menu, data table, date picker (single and range), tree view with drag-and-drop, carousel, resizable panels — plus the chart primitives and the Theme Studio service.',
           },
           {
             title: 'Wave 4 — platform',
             status: 'Planned',
-            body: 'Native source parity, an installable theme package, and a hosted registry for private component sets.',
+            body: 'Hosting the registry behind a service for private component sets, native (React Native) source parity, and packaging the theme output as an npm module. The theme generator itself shipped early as /tools/theme.',
           },
         ].map((wave) => (
           <div key={wave.title} className="rounded-lg border border-border p-5">
@@ -1434,22 +1434,32 @@ function Roadmap() {
         ))}
       </VStack>
 
-      <H2 id="next">Next components</H2>
+      <H2 id="next">Shipped in wave 3</H2>
       <P>
-        These are specified but not yet written. Their pages will render once the source lands and
-        the component is registered.
+        Every previously specified component is written, documented, and live. Wave 3 closed with six
+        interaction-heavy primitives and the Theming service:
       </P>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {[
-          ['Command menu', 'A ⌘K palette with filtering groups and recent items.'],
-          ['Data table', 'Sorting, selection, and column pinning on top of Table.'],
-          ['Date picker', 'A native-input-first calendar with range selection.'],
-          ['Tree view', 'Roving tabindex, expand/collapse, and drag affordances.'],
-          ['Carousel', 'Scroll-snap first, with keyboard and screen-reader controls.'],
-          ['Resizable', 'Keyboard-adjustable split panes built on CSS.'],
-        ].map(([title, body]) => (
-          <div key={title} className="rounded-lg border border-dashed border-border p-4">
-            <p className="text-sm font-semibold text-fg">{title}</p>
+          ['CommandMenu', 'command-menu', 'A ⌘K palette with grouped filtering on a native dialog.'],
+          ['DataTable', 'data-table', 'Sorting, selection, sticky header, and a pinned first column.'],
+          ['DatePicker', 'date-picker', 'Single and range modes with a native date input beside the grid.'],
+          ['TreeView', 'tree-view', 'Roving tabindex, expand/collapse, and opt-in HTML5 drag and drop.'],
+          ['Carousel', 'carousel', 'Scroll-snap slides with buttons, dots, and loop support.'],
+          ['Resizable', 'resizable', 'Pointer and keyboard split panes over one CSS variable.'],
+          ['Chart primitives', 'sparkline', 'Six themeable, dependency-free charts.'],
+          ['Theme Studio', '/tools/theme', 'Generate, audit, and export a full theme — plus /api/theme for agents.'],
+        ].map(([title, slug, body]) => (
+          <div key={title} className="rounded-lg border border-border p-4">
+            {slug.startsWith('/') ? (
+              <Link href={slug} className="text-sm font-semibold">
+                {title}
+              </Link>
+            ) : (
+              <Link href={`/components/${slug}`} className="text-sm font-semibold">
+                {title}
+              </Link>
+            )}
             <p className="mt-1 text-sm text-fg-muted">{body}</p>
           </div>
         ))}
@@ -1592,7 +1602,7 @@ export const guideContent: Record<string, GuideContent> = {
     toc: [
       { id: 'now', title: 'Where we are' },
       { id: 'waves', title: 'Delivery waves' },
-      { id: 'next', title: 'Next components' },
+      { id: 'next', title: 'Shipped in wave 3' },
       { id: 'principles', title: 'What will not change' },
       { id: 'contribute', title: 'Contributing' },
     ],
