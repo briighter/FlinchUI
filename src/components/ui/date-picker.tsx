@@ -144,6 +144,29 @@ export function DatePicker({
   );
   const weekdays = weekStartsOn === 1 ? WEEKDAYS_MON : WEEKDAYS_SUN;
 
+  /*
+   * Roving tabindex fallback. `focusedKey` only exists after the first keyboard
+   * move, so before that — and whenever the visible month changes — the tab stop
+   * has to be derived from the view itself. Without this, paging the header left
+   * the grid with no tabbable cell at all.
+   */
+  const fallbackKey = useMemo(() => {
+    const selectedDate = mode === 'range' ? range.start : single;
+    const viewMonth = new Date(view.getFullYear(), view.getMonth(), 1);
+    if (selectedDate && sameDay(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1), viewMonth)) {
+      return isoDate(selectedDate);
+    }
+    if (sameDay(new Date(today.getFullYear(), today.getMonth(), 1), viewMonth)) {
+      return isoDate(today);
+    }
+    return isoDate(viewMonth);
+  }, [mode, single, range.start, view, today]);
+
+  function changeMonth(amount: number) {
+    setView(addMonths(view, amount));
+    setFocusedKey(null);
+  }
+
   // Roving tabindex: exactly one cell is tabbable, and keyboard moves move focus.
   useEffect(() => {
     if (!focusedKey) return;
@@ -222,7 +245,7 @@ export function DatePicker({
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
-          onClick={() => setView(addMonths(view, -1))}
+          onClick={() => changeMonth(-1)}
           disabled={disabled}
           aria-label="Previous month"
           className="inline-flex size-8 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-surface-sunken hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40"
@@ -234,7 +257,7 @@ export function DatePicker({
         </span>
         <button
           type="button"
-          onClick={() => setView(addMonths(view, 1))}
+          onClick={() => changeMonth(1)}
           disabled={disabled}
           aria-label="Next month"
           className="inline-flex size-8 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-surface-sunken hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40"
@@ -286,7 +309,7 @@ export function DatePicker({
                   <button
                     type="button"
                     data-key={key}
-                    tabIndex={focusedKey === null ? (key === isoDate(single ?? rangeStart ?? today) ? 0 : -1) : focusedKey === key ? 0 : -1}
+                    tabIndex={focusedKey === null ? (key === fallbackKey ? 0 : -1) : focusedKey === key ? 0 : -1}
                     disabled={isBlocked}
                     aria-disabled={isBlocked || undefined}
                     aria-current={isToday ? 'date' : undefined}

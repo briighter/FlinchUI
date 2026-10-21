@@ -69,6 +69,16 @@ export function Carousel({
     sync();
   }, [sync]);
 
+  // Slide width is a fraction of the track, so a viewport change moves every
+  // snap point. Re-derive the index instead of trusting the pre-resize value.
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => sync());
+    observer.observe(track);
+    return () => observer.disconnect();
+  }, [sync]);
+
   function scrollTo(index: number) {
     const track = trackRef.current;
     if (!track) return;
