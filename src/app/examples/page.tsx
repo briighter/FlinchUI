@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { showcaseApps } from '@/lib/showcase';
 import { AppGallery } from '@/components/showcase/app-gallery';
+import { MarkdownActions } from '@/components/docs/markdown-actions';
 import { Badge } from '@/components/ui/badge';
 import { Link } from '@/components/ui/link';
 
@@ -8,6 +9,10 @@ export const metadata: Metadata = {
   title: 'Examples',
   description:
     'Complete, working applications built entirely from FlinchUI components — a trading terminal, an analytics dashboard, a storefront, a 3D configurator, a game, and more.',
+  alternates: {
+    canonical: '/examples',
+    types: { 'text/markdown': '/examples.md' },
+  },
 };
 
 export default function ExamplesPage() {
@@ -41,6 +46,7 @@ export default function ExamplesPage() {
           </Link>
           .
         </p>
+        <MarkdownActions href="/examples.md" className="mt-5" />
       </header>
 
       <div className="mt-12">

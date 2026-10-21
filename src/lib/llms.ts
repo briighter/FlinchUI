@@ -54,6 +54,21 @@ export function buildLlmsTxt(): string {
     'Components with no listed dependency need nothing beyond React and Tailwind. Popover, Tooltip,',
     'DropdownMenu, and HoverCard additionally require `@floating-ui/react`.',
     '',
+    '## Reading this site as Markdown',
+    '',
+    'Every page has a Markdown twin: append `.md` to the page URL. Prefer these for context —',
+    'they include example source and prop tables without navigation chrome.',
+    '',
+    `- Agent protocol: ${siteUrl}/docs/agents.md`,
+    `- Site index: ${siteUrl}/index.md`,
+    `- Component index: ${siteUrl}/components.md`,
+    `- Guides index: ${siteUrl}/docs.md`,
+    `- Examples index: ${siteUrl}/examples.md`,
+    `- Tools index: ${siteUrl}/tools.md`,
+    '',
+    'Individual pages follow the same pattern, for example',
+    `${siteUrl}/components/button.md or ${siteUrl}/examples/trading-terminal.md.`,
+    '',
     `## Components (${components.length})`,
   ];
 
@@ -65,21 +80,21 @@ export function buildLlmsTxt(): string {
     for (const component of entries) {
       const beta = component.status === 'beta' ? ' **[beta]**' : '';
       lines.push(
-        `- [${component.name}](${componentUrl(component)}): ${component.description}${beta}`,
+        `- [${component.name}](${componentUrl(component)}.md): ${component.description}${beta}`,
       );
     }
   }
 
   lines.push('', `## Guides (${guides.length})`, '');
   for (const guide of guides) {
-    lines.push(`- [${guide.title}](${siteUrl}/docs/${guide.slug}): ${guide.description}`);
+    lines.push(`- [${guide.title}](${siteUrl}/docs/${guide.slug}.md): ${guide.description}`);
   }
 
   lines.push(
     '',
     '## Tools',
     '',
-    `- [Theme Studio](${siteUrl}/tools/theme): Generate a complete theme from a seed hue; export copy-paste CSS, JSON, or an agent prompt.`,
+    `- [Theme Studio](${siteUrl}/tools/theme.md): Generate a complete theme from a seed hue; export copy-paste CSS, JSON, or an agent prompt.`,
     `- [Theme API](${siteUrl}/api/themes): Shipped themes, seed presets, parameter ranges, and endpoint URLs.`,
     `- [Registry API](${siteUrl}/api/registry): Every component as JSON — props, files, dependencies, and a11y notes.`,
     '',
@@ -104,7 +119,7 @@ export function buildLlmsTxt(): string {
   );
   for (const app of showcaseApps) {
     lines.push(
-      `- [${app.name} — ${app.title}](${siteUrl}/examples/${app.slug}): ${app.tagline} Components: ${app.uses.join(', ')}.`,
+      `- [${app.name} — ${app.title}](${siteUrl}/examples/${app.slug}.md): ${app.tagline} Components: ${app.uses.join(', ')}.`,
     );
   }
 
@@ -138,6 +153,8 @@ export function buildLlmsFullTxt(): string {
     `Version: ${registryVersion}`,
     `Site: ${siteUrl}`,
     `Registry JSON: ${siteUrl}/api/registry`,
+    `Agent protocol: ${siteUrl}/docs/agents.md`,
+    'Markdown twin: append `.md` to any page URL.',
     '',
     '## Installation',
     '',
@@ -205,6 +222,7 @@ export function buildLlmsFullTxt(): string {
       lines.push(component.description, '');
       if (component.intro) lines.push(component.intro, '');
       lines.push(`- Docs: ${componentUrl(component)}`);
+      lines.push(`- Markdown: ${componentUrl(component)}.md`);
       lines.push(`- Install: \`npx flinchui add ${component.slug}\``);
       lines.push(`- Status: ${component.status ?? 'stable'}`);
       if (component.files?.length) lines.push(`- Files: ${component.files.join(', ')}`);
@@ -225,7 +243,8 @@ export function buildLlmsFullTxt(): string {
   for (const guide of guides) {
     lines.push(`### ${guide.title}`, '');
     lines.push(guide.description, '');
-    lines.push(`- ${siteUrl}/docs/${guide.slug}`, '');
+    lines.push(`- ${siteUrl}/docs/${guide.slug}`);
+    lines.push(`- Markdown: ${siteUrl}/docs/${guide.slug}.md`, '');
   }
 
   lines.push('', '## Tools', '');
@@ -234,6 +253,7 @@ export function buildLlmsFullTxt(): string {
     'Generates a full theme from a seed: OKLCH tokens, contrast audit, CSS, JSON, and an agent prompt.',
     '',
     `- ${siteUrl}/tools/theme`,
+    `- Markdown: ${siteUrl}/tools/theme.md`,
     '',
     '### Theme API',
     '',
@@ -255,6 +275,7 @@ export function buildLlmsFullTxt(): string {
     lines.push(`### ${app.name} — ${app.title}`, '');
     lines.push(app.description, '');
     lines.push(`- ${siteUrl}/examples/${app.slug}`);
+    lines.push(`- Markdown: ${siteUrl}/examples/${app.slug}.md`);
     lines.push(`- Category: ${app.category}; device: ${app.device}`);
     lines.push(`- Components: ${app.uses.join(', ')}`);
     if (app.deps?.length) lines.push(`- Runtime dependencies: ${app.deps.join(', ')}`);

@@ -10,6 +10,7 @@ import { Link } from '@/components/ui/link';
 import { PropTable } from '@/components/docs/prop-table';
 import { Callout } from '@/components/docs/callout';
 import { Snippet } from '@/components/docs/snippet';
+import { MarkdownActions } from '@/components/docs/markdown-actions';
 import { Toc, type TocItem } from '@/components/docs/toc';
 import { ExampleContent } from '@/content/examples';
 
@@ -29,6 +30,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: component.name,
     description: component.description,
+    alternates: {
+      canonical: `/components/${component.slug}`,
+      types: { 'text/markdown': `/components/${component.slug}.md` },
+    },
   };
 }
 
@@ -71,16 +76,19 @@ export default async function ComponentPage({ params }: PageProps) {
             <p className="mt-3 text-sm leading-6 text-fg-muted">{component.intro}</p>
           ) : null}
 
-          <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-            <span className="text-fg-subtle">
-              Category:{' '}
-              <Link href={`/components/${allComponents.find((item) => item.category === component.category)?.slug ?? ''}`} tone="subtle">
-                {category?.label}
-              </Link>
-            </span>
-            {component.files?.length ? (
-              <span className="font-mono text-xs text-fg-subtle">{component.files[0]}</span>
-            ) : null}
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 text-sm">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+              <span className="text-fg-subtle">
+                Category:{' '}
+                <Link href={`/components/${allComponents.find((item) => item.category === component.category)?.slug ?? ''}`} tone="subtle">
+                  {category?.label}
+                </Link>
+              </span>
+              {component.files?.length ? (
+                <span className="font-mono text-xs text-fg-subtle">{component.files[0]}</span>
+              ) : null}
+            </div>
+            <MarkdownActions href={`/components/${component.slug}.md`} />
           </div>
         </header>
 

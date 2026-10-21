@@ -2,6 +2,7 @@ import type { ComponentType, ReactNode } from 'react';
 import Link from 'next/link';
 import { Callout } from '@/components/docs/callout';
 import { Snippet } from '@/components/docs/snippet';
+import { Doc, H2, H3, Lead, P, UL } from '@/components/docs/prose';
 import { Code } from '@/components/ui/code';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,42 +18,8 @@ import type { TocItem } from '@/components/docs/toc';
 /*  Prose primitives                                                          */
 /* -------------------------------------------------------------------------- */
 
-function Lead({ children }: { children: ReactNode }) {
-  return <p className="mt-3 text-lg leading-8 text-fg-muted">{children}</p>;
-}
-
-function H2({ id, children }: { id: string; children: ReactNode }) {
-  return (
-    <h2 id={id} className="mt-14 scroll-mt-24 text-2xl font-bold tracking-tight text-fg">
-      {children}
-    </h2>
-  );
-}
-
-function H3({ id, children }: { id?: string; children: ReactNode }) {
-  return (
-    <h3 id={id} className="mt-8 scroll-mt-24 text-lg font-semibold text-fg">
-      {children}
-    </h3>
-  );
-}
-
-function P({ children }: { children: ReactNode }) {
-  return <p className="mt-4 text-sm leading-7 text-fg-muted">{children}</p>;
-}
-
-function UL({ children }: { children: ReactNode }) {
-  return (
-    <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-7 text-fg-muted marker:text-fg-subtle">
-      {children}
-    </ul>
-  );
-}
-
-/** Section wrapper with a consistent vertical rhythm. */
-function Doc({ children }: { children: ReactNode }) {
-  return <div className="max-w-3xl">{children}</div>;
-}
+/* H2, H3, P, UL, Lead, and Doc now live in `@/components/docs/prose` so the
+ * Markdown mirror can recognise them by identity. */
 
 /* -------------------------------------------------------------------------- */
 /*  Shared data                                                               */
@@ -909,14 +876,349 @@ export function SettingsSection({ title, children }: { title: string; children: 
 /*  AI agents                                                                 */
 /* -------------------------------------------------------------------------- */
 
+function Agents() {
+  return (
+    <Doc>
+      <Badge tone="brand">Agent protocol</Badge>
+      <h1 className="mt-4 text-4xl font-bold tracking-tight text-fg">
+        Build with an AI agent
+      </h1>
+      <Lead>
+        This is the canonical instruction set for an agent adding FlinchUI to a repository. Fetch
+        it as Markdown at <Code>/agents.md</Code>, paste it into a system prompt, and follow it
+        without a human in the loop.
+      </Lead>
+
+      <Callout tone="tip" title="The short version">
+        Fetch <Code>/llms.txt</Code>, choose an exact slug, run{' '}
+        <Code>npx flinchui add &lt;slug&gt;</Code>, then run <Code>npm run typecheck</Code> and the
+        build. Never write component source from memory — read the page first, and copy the
+        registry entry instead of inventing props.
+      </Callout>
+
+      <H2 id="protocol">The protocol</H2>
+      <P>
+        Follow the steps in order. Every step reads from a machine-readable surface, so the result
+        does not depend on the model&rsquo;s memory of this library. If a step fails, stop and
+        report the failing URL or command rather than guessing.
+      </P>
+
+      <H3 id="discover">1. Discover the exact slug</H3>
+      <P>
+        Start at <Code>/llms.txt</Code>. It lists every component slug, category, one-line
+        description, guide, tool, and showcase app. A slug is a contract: <Code>data-table</Code>{' '}
+        exists, <Code>datatable</Code> does not. Never pluralise, camel-case, or abbreviate a slug.
+      </P>
+      <UL>
+        <li>
+          <Code>/llms.txt</Code> — compact index. Best first fetch.
+        </li>
+        <li>
+          <Code>/llms-full.txt</Code> — the entire registry, props included, in one file.
+        </li>
+        <li>
+          <Code>/api/registry</Code> — JSON index; <Code>/api/registry/&lt;slug&gt;</Code> for one
+          component.
+        </li>
+        <li>
+          <Code>/components/&lt;slug&gt;.md</Code> — the full page: examples, props, a11y, source
+          paths.
+        </li>
+      </UL>
+      <Snippet
+        language="bash"
+        title="Discover a component"
+        code={`curl -s https://flinchui.dev/llms.txt
+curl -s https://flinchui.dev/components/data-table.md
+curl -s https://flinchui.dev/api/registry/data-table`}
+      />
+
+      <H3 id="install">2. Install with the CLI</H3>
+      <P>
+        The CLI is the supported way to add a component. It copies the source, the shared helpers
+        the component imports, and any opt-in dependency it declares, then records the files in{' '}
+        <Code>components.json</Code> so later updates can be diffed.
+      </P>
+      <Snippet
+        language="bash"
+        title="Install"
+        code={`# once per project — writes components.json and the token layer
+npx flinchui init
+
+# preview the plan without writing files
+npx flinchui add data-table date-picker --dry-run
+
+# copy the components and their import graph
+npx flinchui add data-table date-picker`}
+      />
+      <UL>
+        <li>
+          <Code>--dry-run</Code> prints every file and dependency without writing.
+        </li>
+        <li>
+          <Code>--overwrite</Code> replaces files that already exist. Never use it without reading
+          the diff first: the consumer may have edited the copied source.
+        </li>
+        <li>
+          <Code>--no-install</Code> copies files but skips <Code>npm install</Code> for opt-in
+          dependencies.
+        </li>
+        <li>
+          Inside this repository the CLI is repo-local: <Code>node packages/cli/bin/flinchui.mjs add &lt;slug&gt;</Code>.
+        </li>
+      </UL>
+
+      <H3 id="contract">3. Read the contract before editing</H3>
+      <P>
+        The Markdown page is the contract. It contains the install command, every documented prop,
+        accessibility notes, related components, and the exact example source. Read it before
+        changing a copied file, and keep the documented prop names.
+      </P>
+      <UL>
+        <li>
+          <strong>Props are a closed set.</strong> If a prop is not in the table, it does not exist.
+          Pass native attributes only where the base element forwards them.
+        </li>
+        <li>
+          <strong>Variant props are unions.</strong> <Code>variant=&quot;primary&quot;</Code> is
+          valid; <Code>variant=&quot;brand&quot;</Code> is not. Use <Code>className</Code> for
+          one-off styling.
+        </li>
+        <li>
+          <strong>Files are listed.</strong> Copy every file the CLI reports. A component that
+          imports <Code>cn.ts</Code> will not compile without it.
+        </li>
+        <li>
+          <strong>Dependencies are explicit.</strong> Only Popover, Tooltip, Dropdown Menu, and Hover
+          Card require <Code>@floating-ui/react</Code>. Do not add a dependency to a component that
+          declares none.
+        </li>
+      </UL>
+
+      <H3 id="style">4. Respect the styling rules</H3>
+      <P>
+        Copied components are ordinary source files, but they are also the library&rsquo;s
+        conventions. Keep these invariants when you edit them, and follow them in any new component
+        you write alongside them.
+      </P>
+      <UL>
+        <li>
+          <strong>Semantic tokens only.</strong> Use <Code>bg-surface</Code>,{' '}
+          <Code>text-fg-muted</Code>, <Code>border-border</Code>, <Code>ring-ring</Code>,{' '}
+          <Code>bg-brand-600</Code>, and the status tokens. Never <Code>bg-white</Code>,{' '}
+          <Code>text-slate-600</Code>, or a hex value.
+        </li>
+        <li>
+          <strong>Static Tailwind classes.</strong> No inline <Code>style</Code>, no CSS-in-JS, no
+          class-name concatenation Tailwind cannot see. Two documented exceptions exist: Prism emits
+          CSS, and Resizable writes one custom property through a ref.
+        </li>
+        <li>
+          <strong>
+            <Code>cn()</Code> merges last.
+          </strong>{' '}
+          Consumer <Code>className</Code> must win. It does not resolve Tailwind conflicts — do not
+          claim it does.
+        </li>
+        <li>
+          <strong>Native first.</strong> <Code>&lt;dialog&gt;</Code> for modals,{' '}
+          <Code>&lt;details&gt;</Code> for disclosure, <Code>&lt;button&gt;</Code> for toggles, and
+          real <Code>&lt;input&gt;</Code> elements. Add ARIA only to fill a real gap.
+        </li>
+        <li>
+          <strong>Server/client boundaries.</strong> Add <Code>&apos;use client&apos;</Code> only
+          when the file owns state, effects, refs, or handlers. A Server Component must never pass a
+          function prop to a Client Component.
+        </li>
+        <li>
+          <strong>Keep exported variants.</strong> <Code>…Schema</Code> and <Code>…Variants</Code>{' '}
+          are public API. Extend them; do not delete them.
+        </li>
+      </UL>
+
+      <H3 id="theme">5. Theme through tokens, not edits</H3>
+      <P>
+        Do not fork components to change colours. A theme is a block of CSS custom properties
+        selected by <Code>data-theme</Code>. Generate one with the theme API and apply it to any
+        ancestor; every component below it re-themes with no JavaScript.
+      </P>
+      <Snippet
+        language="bash"
+        title="Generate a theme"
+        code={`# JSON: controls, tokens, CSS, and a measured contrast audit
+curl -s "https://flinchui.dev/api/theme?preset=violet&mode=dark"
+
+# the stylesheet, ready to paste
+curl -s "https://flinchui.dev/api/theme?preset=violet&mode=dark&format=css"`}
+      />
+      <UL>
+        <li>
+          Set <Code>data-theme=&quot;prism&quot;</Code> for a generated theme; the shipped themes
+          are <Code>dark</Code>, <Code>violet</Code>, <Code>emerald</Code>, <Code>amber</Code>,{' '}
+          <Code>rose</Code>, and <Code>high-contrast</Code>. Light is the default token layer.
+        </li>
+        <li>
+          Never rename a token or add indirection such as <Code>--flinch-*</Code>. Themes override{' '}
+          <Code>--color-*</Code> by the same name.
+        </li>
+        <li>
+          Read <Code>/tools/theme.md</Code> for parameter ranges, the response shape, and the
+          catalogue at <Code>/api/themes</Code>.
+        </li>
+      </UL>
+
+      <H3 id="verify">6. Verify before claiming success</H3>
+      <P>
+        A change is not done because the file exists. Run the project&rsquo;s checks, then walk the
+        interaction paths a keyboard user would take.
+      </P>
+      <UL>
+        <li>
+          <Code>npm run typecheck</Code> (or <Code>npx tsc --noEmit</Code>) must pass.
+        </li>
+        <li>
+          <Code>npm run build</Code> must pass. It catches Server/Client boundary errors that a
+          typecheck cannot.
+        </li>
+        <li>
+          Tab through the component: every control is reachable, focus is visible, Escape closes
+          overlays, and arrow keys move within composite widgets.
+        </li>
+        <li>
+          Toggle dark mode and one non-default theme. No surface should be unreadable, and no
+          hard-coded colour should appear.
+        </li>
+        <li>
+          Check the accessible name of every icon-only control, and respect{' '}
+          <Code>prefers-reduced-motion</Code>.
+        </li>
+      </UL>
+
+      <H2 id="prompt">Paste-ready system prompt</H2>
+      <P>
+        The block below is the whole protocol in a compact form. Replace the base URL if you are
+        working against a local server, and keep the rules verbatim — they are the difference
+        between adding the library and inventing a lookalike.
+      </P>
+      <Snippet
+        language="markdown"
+        title="System prompt"
+        code={`You are working in a React + Tailwind CSS v4 project that uses FlinchUI,
+a copy-paste component library. There is no runtime package.
+
+Sources of truth (fetch, never guess):
+- https://flinchui.dev/llms.txt                 index of every page and slug
+- https://flinchui.dev/api/registry             component JSON index
+- https://flinchui.dev/api/registry/<slug>      files, deps, props
+- https://flinchui.dev/components/<slug>.md     full page as Markdown
+- https://flinchui.dev/api/themes               theme catalogue and ranges
+- https://flinchui.dev/api/theme?format=css     generated theme CSS
+
+Workflow:
+1. Fetch /llms.txt and choose exact slugs. If a slug is absent, stop.
+2. Fetch the component's .md page and read its props and accessibility notes.
+3. Install with \`npx flinchui add <slug> ...\` (use --dry-run first).
+4. Edit the copied source only when the task requires it. Keep exported
+   variant maps, prop names, and native element choices intact.
+5. Run \`npm run typecheck\` and \`npm run build\`. Do not claim success otherwise.
+
+Hard rules:
+- Semantic tokens only: bg-surface, text-fg-muted, border-border, ring-ring,
+  bg-brand-600, text-fg-on-brand, success/warning/danger/info tokens.
+  Never bg-white, text-slate-*, or hex colours in component source.
+- Static Tailwind utilities. No inline style, CSS-in-JS, or <style> strings.
+- cn() merges last. Consumer className wins. It does not resolve conflicts.
+- Prefer native elements: <dialog>, <details>, <button>, <input>, <table>.
+- Add 'use client' only for state, effects, refs, or event handlers.
+- A Server Component must not pass a function prop to a Client Component.
+- Never import FlinchUI from node_modules. It is source you own.
+- Do not add dependencies to components that declare none.
+- Theme by setting data-theme and overriding --color-* tokens; do not fork
+  components or rename tokens.
+
+Deliver: the changed files, the exact commands you ran, and their results.`}
+      />
+
+      <H2 id="surfaces">Where each answer lives</H2>
+      <UL>
+        <li>
+          &ldquo;Which components exist?&rdquo; — <Code>/llms.txt</Code> or{' '}
+          <Code>/api/registry</Code>.
+        </li>
+        <li>
+          &ldquo;What props does it take?&rdquo; — <Code>/components/&lt;slug&gt;.md</Code> or{' '}
+          <Code>/api/registry/&lt;slug&gt;</Code>.
+        </li>
+        <li>
+          &ldquo;How do I install it?&rdquo; — <Code>/docs/installation.md</Code> and{' '}
+          <Code>/docs/cli.md</Code>.
+        </li>
+        <li>
+          &ldquo;How do I theme it?&rdquo; — <Code>/docs/theming.md</Code>,{' '}
+          <Code>/tools/theme.md</Code>, <Code>/api/theme</Code>.
+        </li>
+        <li>
+          &ldquo;How do I build a new component?&rdquo; — <Code>/docs/authoring.md</Code>.
+        </li>
+        <li>
+          &ldquo;What does a complete app look like?&rdquo; —{' '}
+          <Code>/examples/&lt;slug&gt;.md</Code> lists the components used and the source path.
+        </li>
+      </UL>
+
+      <H2 id="failures">Failure modes to avoid</H2>
+      <UL>
+        <li>
+          <strong>Guessing a slug or prop.</strong> The registry is small enough to fetch; guessing
+          produces code that compiles against nothing.
+        </li>
+        <li>
+          <strong>Importing from a package.</strong> There is no <Code>flinchui</Code> runtime.
+          Imports resolve to <Code>@/components/ui/&lt;slug&gt;</Code> in the consumer&rsquo;s repo.
+        </li>
+        <li>
+          <strong>Adding a provider.</strong> Theming is an attribute, not a context. Toasts and
+          overlays are self-contained.
+        </li>
+        <li>
+          <strong>Hard-coding colours to &ldquo;match the design&rdquo;.</strong> That breaks every
+          theme. Use the token that already matches.
+        </li>
+        <li>
+          <strong>Rewriting instead of copying.</strong> The value of the library is the reviewed
+          source. Start from the CLI output, then change what the task requires.
+        </li>
+        <li>
+          <strong>Declaring success from a diff.</strong> Typecheck, build, and a keyboard pass are
+          the evidence.
+        </li>
+      </UL>
+
+      <Callout tone="note" title="Reading this page as a file">
+        This guide is also served at <Code>/agents.md</Code> and{' '}
+        <Code>/docs/agents.md</Code>. Every other page has the same twin: append{' '}
+        <Code>.md</Code> to its URL. The <Code>.md</Code> includes front matter, example source, and
+        prop tables that the HTML page renders visually.
+      </Callout>
+    </Doc>
+  );
+}
+
 function Ai() {
   return (
     <Doc>
       <h1 className="text-4xl font-bold tracking-tight text-fg">Using AI agents</h1>
       <Lead>
         FlinchUI is designed to be read by machines as well as people. The registry is the source of
-        truth, and four surfaces expose it without scraping HTML.
+        truth, and several surfaces expose it without scraping HTML.
       </Lead>
+
+      <Callout tone="tip" title="Adding components? Read the protocol.">
+        This page explains the machine surfaces. The step-by-step instructions an agent should
+        follow — discover, install, read the contract, theme, verify — live in{' '}
+        <Link href="/docs/agents">Build with an AI agent</Link>. Its Markdown twin is{' '}
+        <Code>/agents.md</Code>, and it includes a paste-ready system prompt.
+      </Callout>
 
       <H2 id="surfaces">Machine-readable surfaces</H2>
       <div className="mt-4 grid gap-4">
@@ -937,6 +1239,10 @@ function Ai() {
             title: '/api/theme',
             body: 'Generate a theme from a seed and receive tokens, CSS, and a measured contrast audit. /api/themes lists shipped themes, presets, and parameter ranges.',
           },
+          {
+            title: 'Every page as .md',
+            body: 'Append .md to any URL for a Markdown twin with front matter, example source, and prop tables. The index is /index.md; every component, guide, and example follows the same pattern.',
+          },
         ].map((item) => (
           <div key={item.title} className="rounded-lg border border-border p-4">
             <p className="font-mono text-sm font-medium text-fg">{item.title}</p>
@@ -948,7 +1254,9 @@ function Ai() {
       <H2 id="prompt">Use the bundled prompt</H2>
       <P>
         The repository ships <Code>PROMPT.md</Code>, a short instruction set that tells an agent how
-        to add a component correctly. Paste it into the system prompt, or reference it from your
+        to add a component correctly. The maintained version, with the same rules and the current
+        URLs, is also embedded in <Link href="/docs/agents">Build with an AI agent</Link> and served
+        at <Code>/agents.md</Code>. Paste it into the system prompt, or reference it from your
         editor&apos;s rules file.
       </P>
       <Snippet
@@ -961,11 +1269,15 @@ curl -s https://flinchui.dev/api/registry/button`}
       <H2 id="workflow">Recommended agent workflow</H2>
       <UL>
         <li>Fetch <Code>/llms.txt</Code> to discover the exact slug — never guess a component name.</li>
-        <li>Fetch the single registry entry to learn the files and dependencies.</li>
+        <li>Fetch <Code>/components/&lt;slug&gt;.md</Code> for the props, accessibility notes, and example source.</li>
         <li>Prefer <Code>npx flinchui add &lt;slug&gt;</Code> over generating source by hand.</li>
         <li>If you must generate, follow the authoring conventions: static classes, exported variants, native elements first.</li>
         <li>Run <Code>npm run typecheck</Code> and the build before claiming success.</li>
       </UL>
+      <P>
+        The full protocol, including install flags, styling rules, theming, and a paste-ready system
+        prompt, is on <Link href="/docs/agents">Build with an AI agent</Link>.
+      </P>
 
       <H2 id="rules">Guardrails</H2>
       <Callout tone="warning" title="Do not invent props">
@@ -1520,6 +1832,21 @@ export const guideContent: Record<string, GuideContent> = {
       { id: 'manual', title: 'Without the CLI' },
       { id: 'components-json', title: 'components.json' },
       { id: 'verify', title: 'Verify the install' },
+    ],
+  },
+  agents: {
+    Component: Agents,
+    toc: [
+      { id: 'protocol', title: 'The protocol' },
+      { id: 'discover', title: '1. Discover the slug' },
+      { id: 'install', title: '2. Install with the CLI' },
+      { id: 'contract', title: '3. Read the contract' },
+      { id: 'style', title: '4. Styling rules' },
+      { id: 'theme', title: '5. Theme through tokens' },
+      { id: 'verify', title: '6. Verify' },
+      { id: 'prompt', title: 'Paste-ready prompt' },
+      { id: 'surfaces', title: 'Where answers live' },
+      { id: 'failures', title: 'Failure modes' },
     ],
   },
   theming: {

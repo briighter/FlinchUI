@@ -5,6 +5,7 @@ import { getGuide } from '@/lib/registry';
 import { guides } from '@/registry/guides';
 import { guideContent } from '@/content/guides';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
+import { MarkdownActions } from '@/components/docs/markdown-actions';
 import { Toc } from '@/components/docs/toc';
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/icons';
 
@@ -24,6 +25,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: guide.title,
     description: guide.description,
+    alternates: {
+      canonical: `/docs/${guide.slug}`,
+      types: { 'text/markdown': `/docs/${guide.slug}.md` },
+    },
   };
 }
 
@@ -42,13 +47,16 @@ export default async function GuidePage({ params }: PageProps) {
   return (
     <div className="flex gap-12">
       <article className="min-w-0 max-w-3xl flex-1">
-        <Breadcrumb
-          items={[
-            { label: 'Docs', href: '/docs/introduction' },
-            { label: guide.group },
-            { label: guide.title },
-          ]}
-        />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Breadcrumb
+            items={[
+              { label: 'Docs', href: '/docs/introduction' },
+              { label: guide.group },
+              { label: guide.title },
+            ]}
+          />
+          <MarkdownActions href={`/docs/${guide.slug}.md`} />
+        </div>
 
         <div className="mt-4">
           <Component />

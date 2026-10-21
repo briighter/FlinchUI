@@ -84,6 +84,24 @@ If the component is not yet implemented, still add the registry entry with
 serves JSON. Both read the registry and add no independent data. If you add a field to
 `ComponentDoc`, update the API/llms output only when it is useful to consumers.
 
+**Every page also has a Markdown twin.** `src/lib/page-markdown.ts` builds it from the
+same registry and React trees the page renders; `src/app/md/**/route.ts` serves the
+files, and `next.config.mjs` rewrites the conventional URL (`/components/<slug>.md`,
+`/docs/<slug>.md`, `/examples/<slug>.md`, `/tools/theme.md`, `/index.md`) onto them.
+`src/lib/markdown.ts` walks JSX and emits headings, lists, callouts, fenced code, and
+example source — it is not an HTML scraper. Guide prose primitives live in
+`src/components/docs/prose.tsx` so they can be recognised by identity.
+
+When adding a page:
+
+- A component example added to `src/content/examples/<category>.tsx` appears in that
+  component's `.md` automatically. Nothing to regenerate.
+- A guide added to `src/registry/guides.ts` gets a Markdown twin automatically.
+- A genuinely new page type needs a builder in `page-markdown.ts`, a route under
+  `src/app/md/`, a rewrite, `alternates.types` metadata, and a `MarkdownActions` button.
+- The canonical agent instructions live at `/docs/agents`; `PROMPT.md` mirrors the
+  short version. Keep both aligned when the workflow changes.
+
 ## Config renderer JSON rules
 
 These apply when authoring or accepting JSON for `ConfigRenderer`. The validator

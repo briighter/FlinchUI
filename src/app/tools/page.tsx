@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { MarkdownActions } from '@/components/docs/markdown-actions';
 import { Link } from '@/components/ui/link';
 import { ArrowRightIcon, CodeIcon, PaletteIcon, TerminalIcon } from '@/components/ui/icons';
 
@@ -8,6 +9,10 @@ export const metadata: Metadata = {
   title: 'Tools',
   description:
     'FlinchUI services: a theme studio that emits copy-paste CSS, a machine-readable component registry, and a CLI.',
+  alternates: {
+    canonical: '/tools',
+    types: { 'text/markdown': '/tools.md' },
+  },
 };
 
 const TOOLS = [
@@ -50,6 +55,7 @@ export default function ToolsPage() {
           theme CSS, registry JSON, and source files. Everything here is deterministic and readable
           by both people and agents.
         </p>
+        <MarkdownActions href="/tools.md" className="mt-5" />
       </header>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -82,10 +88,14 @@ export default function ToolsPage() {
         <h2 className="text-sm font-semibold text-fg">Building an agent?</h2>
         <p className="mt-2 text-sm leading-6 text-fg-muted">
           Start with{' '}
+          <Link href="/docs/agents" tone="subtle">
+            Build with an AI agent
+          </Link>{' '}
+          for the full protocol and a paste-ready prompt, then fetch{' '}
           <Link href="/llms.txt" tone="subtle">
             /llms.txt
           </Link>{' '}
-          for the index, then fetch{' '}
+          for the index or{' '}
           <Link href="/llms-full.txt" tone="subtle">
             /llms-full.txt
           </Link>{' '}

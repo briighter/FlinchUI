@@ -7,6 +7,7 @@ import { BrowserFrame, PhoneFrame } from '@/components/showcase/app-frame';
 import { Badge } from '@/components/ui/badge';
 import { CheckIcon } from '@/components/ui/icons';
 import { Link } from '@/components/ui/link';
+import { MarkdownActions } from '@/components/docs/markdown-actions';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -20,7 +21,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const app = getShowcaseApp(slug);
   if (!app) return {};
-  return { title: `${app.name} — ${app.title}`, description: app.description };
+  return {
+    title: `${app.name} — ${app.title}`,
+    description: app.description,
+    alternates: {
+      canonical: `/examples/${app.slug}`,
+      types: { 'text/markdown': `/examples/${app.slug}.md` },
+    },
+  };
 }
 
 const SLUG_BY_NAME = new Map(components.map((component) => [component.name, component.slug]));
@@ -50,22 +58,25 @@ export default async function ShowcaseAppPage({ params }: PageProps) {
           <p className="mt-2 text-base text-fg-muted">{app.tagline}</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge tone="neutral" size="sm">
-            {mobile ? '390 × 844' : 'Desktop'}
-          </Badge>
-          {app.deps?.length ? (
-            <Badge tone="info" size="sm">
-              Opt-in dependency: {app.deps.join(', ')}
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="neutral" size="sm">
+              {mobile ? '390 × 844' : 'Desktop'}
             </Badge>
-          ) : (
-            <Badge tone="success" size="sm">
-              Zero dependencies
+            {app.deps?.length ? (
+              <Badge tone="info" size="sm">
+                Opt-in dependency: {app.deps.join(', ')}
+              </Badge>
+            ) : (
+              <Badge tone="success" size="sm">
+                Zero dependencies
+              </Badge>
+            )}
+            <Badge tone="outline" size="sm">
+              {app.uses.length} components
             </Badge>
-          )}
-          <Badge tone="outline" size="sm">
-            {app.uses.length} components
-          </Badge>
+          </div>
+          <MarkdownActions href={`/examples/${app.slug}.md`} />
         </div>
       </header>
 

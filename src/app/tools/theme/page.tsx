@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { siteUrl } from '@/lib/site';
 import { ThemeStudio } from '@/components/tools/theme-studio';
+import { MarkdownActions } from '@/components/docs/markdown-actions';
 import { Badge } from '@/components/ui/badge';
 import { Link } from '@/components/ui/link';
 
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   title: 'Theme Studio',
   description:
     'Generate a complete FlinchUI theme from a seed colour: OKLCH tokens, a measured WCAG contrast audit, copy-paste CSS, JSON, and an agent-ready prompt.',
-  alternates: { canonical: '/tools/theme' },
+  alternates: { canonical: '/tools/theme', types: { 'text/markdown': '/tools/theme.md' } },
 };
 
 export default function ThemeStudioPage() {
@@ -46,6 +47,7 @@ export default function ThemeStudioPage() {
           </Link>
           .
         </p>
+        <MarkdownActions href="/tools/theme.md" className="mt-5" />
       </header>
 
       <ThemeStudio apiBase={siteUrl} />

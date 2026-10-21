@@ -19,6 +19,13 @@ export const guides: GuideDoc[] = [
     group: 'Getting started',
   },
   {
+    slug: 'agents',
+    title: 'Build with an AI agent',
+    description:
+      'The canonical protocol for an agent: discover the slug, install with the CLI, read the contract, theme, verify.',
+    group: 'Getting started',
+  },
+  {
     slug: 'theming',
     title: 'Theming',
     description: 'Swap design tokens to re-theme every component — including at runtime and in subtrees.',

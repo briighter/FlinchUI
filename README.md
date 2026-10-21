@@ -142,7 +142,13 @@ generated automatically.
 - `GET /api/registry/<slug>` — one component with files and dependencies.
 - `GET /llms.txt` — a compact index for context windows.
 - `GET /llms-full.txt` — the complete reference: tokens, rules, components, props.
-- [`PROMPT.md`](./PROMPT.md) — an instruction set for agents adding components.
+- `/docs/agents` — the canonical protocol for an agent adding components, with a
+  paste-ready system prompt. Its Markdown twin is `/agents.md`.
+- **Every page has a `.md` twin** — append `.md` to any URL
+  (`/components/button.md`, `/docs/theming.md`, `/examples/trading-terminal.md`).
+  The indexes are `/index.md`, `/components.md`, `/docs.md`, `/examples.md`, and
+  `/tools.md`.
+- [`PROMPT.md`](./PROMPT.md) — the short version of the agent instructions.
 
 ## Config renderer (advanced)
 

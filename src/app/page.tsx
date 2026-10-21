@@ -10,6 +10,7 @@ import { HStack, Stack, VStack } from '@/components/ui/stack';
 import { Footer } from '@/components/ui/footer';
 import { Example } from '@/components/docs/example';
 import { Callout } from '@/components/docs/callout';
+import { MarkdownActions } from '@/components/docs/markdown-actions';
 import {
   ArrowRightIcon,
   BoxIcon,
@@ -27,6 +28,10 @@ export const metadata: Metadata = {
   title: 'FlinchUI — copy-paste React components you own',
   description:
     'A lightweight, infinitely extensible React component library built on Tailwind v4 design tokens. Zero runtime styling, opt-in dependencies, and runtime theming.',
+  alternates: {
+    canonical: '/',
+    types: { 'text/markdown': '/index.md' },
+  },
 };
 
 const THEMES = [
@@ -112,6 +117,7 @@ export default function HomePage() {
               <TerminalIcon className="size-4 text-fg-subtle" />
               <span>npx flinchui add button</span>
             </div>
+            <MarkdownActions href="/index.md" className="justify-center" />
           </VStack>
         </Container>
       </section>
@@ -423,6 +429,7 @@ npx flinchui add dialog`}
           {
             title: 'Resources',
             links: [
+              { label: 'Agent guide', href: '/docs/agents' },
               { label: 'AI integration', href: '/docs/ai' },
               { label: 'llms.txt', href: '/llms.txt' },
               { label: 'Registry API', href: '/api/registry' },
