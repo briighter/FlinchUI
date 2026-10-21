@@ -21,6 +21,11 @@ npm run registry    # regenerate packages/cli/registry.json after registry edits
 
 Do not claim a change works without running `typecheck` and, for UI changes, `build`.
 
+Two Next servers cannot share `.next` — a build while `dev` runs corrupts both. If
+another server already owns `.next`, prefix the build and start commands with
+`NEXT_DIST_DIR=.next-build` to use an isolated output directory; the config falls
+back to `.next` when the variable is unset.
+
 ## Adding a component
 
 1. Create `src/components/ui/<kebab-name>.tsx`.
