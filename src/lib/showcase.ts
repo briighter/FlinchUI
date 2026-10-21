@@ -206,24 +206,6 @@ export const showcaseApps: ShowcaseApp[] = [
     ],
     uses: ['Badge', 'Button', 'Progress', 'Switch', 'Kbd'],
   },
-  {
-    slug: 'theme-generator',
-    name: 'Prism',
-    title: 'Theme generator',
-    category: 'Tools',
-    device: 'desktop',
-    accent: 'brand',
-    tagline: 'Generate a full FlinchUI theme from a seed, then watch it apply.',
-    description:
-      'Prism is the theming story made concrete. It derives a complete OKLCH palette from a single seed colour, writes it as a `[data-theme]` block, and applies it live to the preview — plus an exportable CSS snippet. This is the same mechanism the built-in themes use.',
-    highlights: [
-      'Seed hue, chroma, and surface temperature drive the whole palette',
-      'Live preview across real components, not a swatch grid',
-      'Copy-ready theme CSS as a `[data-theme]` block',
-      'A measured contrast audit across eleven text/background pairs',
-    ],
-    uses: ['Slider', 'RadioGroup', 'ColorSwatch', 'CodeBlock', 'Tabs', 'Badge'],
-  },
 ];
 
 export function getShowcaseApp(slug: string): ShowcaseApp | undefined {

@@ -71,9 +71,9 @@ export default async function ShowcaseAppPage({ params }: PageProps) {
 
       <div className="mt-6">
         {mobile ? (
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-3">
             <PhoneFrame
-              className="aspect-[390/844] h-[calc(100dvh-15rem)] max-h-[840px] min-h-[560px]"
+              className="aspect-[390/844] w-full max-w-[390px] lg:h-[calc(100dvh-15rem)] lg:max-h-[840px] lg:min-h-[560px] lg:w-auto"
               statusBar={
                 <>
                   <span>9:41</span>
@@ -86,14 +86,31 @@ export default async function ShowcaseAppPage({ params }: PageProps) {
             >
               <ShowcaseAppView slug={app.slug} />
             </PhoneFrame>
+            <p className="text-center text-xs text-fg-subtle lg:hidden">
+              Rendered at the app&rsquo;s design width.
+            </p>
           </div>
         ) : (
-          <BrowserFrame
-            url={`${app.slug}.flinchui.dev`}
-            className="h-[calc(100dvh-14rem)] min-h-[540px]"
-          >
-            <ShowcaseAppView slug={app.slug} />
-          </BrowserFrame>
+          <div>
+            <BrowserFrame
+              url={`${app.slug}.flinchui.dev`}
+              className="h-[calc(100dvh-14rem)] min-h-[540px]"
+            >
+              {/*
+               * Desktop apps assume a real window. Below `lg` the frame is only a
+               * phone wide, so the app keeps its 1080px canvas and pans inside it
+               * instead of collapsing its columns into an unreadable column.
+               */}
+              <div className="flex min-h-0 flex-1 flex-col overflow-x-auto">
+                <div className="h-full min-w-[1080px] lg:min-w-0">
+                  <ShowcaseAppView slug={app.slug} />
+                </div>
+              </div>
+            </BrowserFrame>
+            <p className="mt-3 text-center text-xs text-fg-subtle lg:hidden">
+              Desktop layout — scroll sideways to explore it.
+            </p>
+          </div>
         )}
       </div>
 

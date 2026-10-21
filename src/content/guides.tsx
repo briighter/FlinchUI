@@ -453,6 +453,13 @@ function Theming() {
         still resolve the outer value.
       </Callout>
 
+      <P>
+        Hand-tuning a ramp is tedious, so the <Link href="/tools/theme">Theme Studio</Link> does it
+        from a seed: pick a hue, chroma, and surface temperature, audit the contrast, then copy the
+        generated block. The same generator is available over HTTP at <Code>/api/theme</Code>, which
+        returns the tokens, the CSS, and the audit as JSON.
+      </P>
+
       <H2 id="radius">Radii and density</H2>
       <P>
         Shape tokens are ordinary Tailwind theme values. To make the whole library squarer, override
@@ -908,15 +915,15 @@ function Ai() {
       <h1 className="text-4xl font-bold tracking-tight text-fg">Using AI agents</h1>
       <Lead>
         FlinchUI is designed to be read by machines as well as people. The registry is the source of
-        truth, and three surfaces expose it without scraping HTML.
+        truth, and four surfaces expose it without scraping HTML.
       </Lead>
 
-      <H2 id="surfaces">The three surfaces</H2>
+      <H2 id="surfaces">Machine-readable surfaces</H2>
       <div className="mt-4 grid gap-4">
         {[
           {
             title: '/llms.txt',
-            body: 'A compact index: every component, its category, one-line description, and the URL of its entry.',
+            body: 'A compact index: every component, its category, one-line description, and the URL of its entry. Also lists guides, tools, and example apps.',
           },
           {
             title: '/llms-full.txt',
@@ -925,6 +932,10 @@ function Ai() {
           {
             title: '/api/registry',
             body: 'JSON for programmatic use. Add /api/registry/<slug> for a single component with files and dependencies.',
+          },
+          {
+            title: '/api/theme',
+            body: 'Generate a theme from a seed and receive tokens, CSS, and a measured contrast audit. /api/themes lists shipped themes, presets, and parameter ranges.',
           },
         ].map((item) => (
           <div key={item.title} className="rounded-lg border border-border p-4">
@@ -1546,7 +1557,7 @@ export const guideContent: Record<string, GuideContent> = {
   ai: {
     Component: Ai,
     toc: [
-      { id: 'surfaces', title: 'Three surfaces' },
+      { id: 'surfaces', title: 'Machine surfaces' },
       { id: 'prompt', title: 'Bundled prompt' },
       { id: 'workflow', title: 'Agent workflow' },
       { id: 'rules', title: 'Guardrails' },

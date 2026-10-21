@@ -78,15 +78,15 @@ export function AppCard({ app }: { app: ShowcaseApp }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <span
             aria-hidden="true"
             className="flex size-7 shrink-0 items-center justify-center rounded-md bg-brand-600 text-xs font-extrabold text-fg-on-brand"
           >
             {app.name.slice(0, 1)}
           </span>
-          <span className="text-sm font-semibold text-fg">{app.name}</span>
-          <span className="text-sm text-fg-subtle">· {app.title}</span>
+          <span className="shrink-0 text-sm font-semibold text-fg">{app.name}</span>
+          <span className="truncate text-sm text-fg-subtle">· {app.title}</span>
           <ArrowUpRightIcon className="ml-auto size-4 shrink-0 text-fg-subtle transition-colors group-hover:text-fg" />
         </div>
 

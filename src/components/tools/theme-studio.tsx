@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/cn';
-import { toHex, type Oklch } from '../lib/color';
+import { toHex, type Oklch } from '@/lib/color';
 import {
   DEFAULT_CONTROLS,
   SEED_PRESETS,
@@ -11,7 +11,8 @@ import {
   themeToCss,
   type ThemeControls,
   type ThemeMode,
-} from '../lib/theme';
+} from '@/lib/theme';
+import { series } from '@/lib/random';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,17 +28,54 @@ import { Sparkline } from '@/components/ui/sparkline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   CheckIcon,
+  DownloadIcon,
+  ExternalLinkIcon,
   RefreshIcon,
   SparklesIcon,
   XIcon,
 } from '@/components/ui/icons';
-import { series } from '@/lib/random';
 
 const HUE_STEPS = Array.from({ length: 24 }, (_, index) => index * 15);
 
 const PREVIEW_TREND = series(611, { count: 24, start: 100, drift: 0.06, bias: 0.004, precision: 2 });
 
-export function ThemeGenerator() {
+const SEMANTIC_NAMES = [
+  'bg',
+  'surface',
+  'surface-raised',
+  'surface-sunken',
+  'fg',
+  'fg-muted',
+  'fg-subtle',
+  'fg-on-brand',
+  'border',
+  'border-strong',
+  'ring',
+  'overlay',
+];
+
+const RADIUS_STEPS = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'] as const;
+
+function queryString(controls: ThemeControls) {
+  const params = new URLSearchParams({
+    hue: String(controls.hue),
+    chroma: String(controls.chroma),
+    neutralHue: String(controls.neutralHue),
+    neutralChroma: String(controls.neutralChroma),
+    mode: controls.mode,
+    radius: String(controls.radius),
+  });
+  return params.toString();
+}
+
+/**
+ * Theme Studio — the hosted face of the Prism theme engine.
+ *
+ * Unlike the rest of the library this tool *emits* CSS, so it is the documented
+ * exception to the "no inline styles" rule: the generated rule is the product,
+ * and the colour chips display arbitrary generated values by definition.
+ */
+export function ThemeStudio({ apiBase }: { apiBase: string }) {
   const [controls, setControls] = useState<ThemeControls>(DEFAULT_CONTROLS);
 
   const theme = useMemo(() => generateTheme(controls), [controls]);
@@ -45,17 +83,52 @@ export function ThemeGenerator() {
   const audit = useMemo(() => auditTheme(theme), [theme]);
   const passing = audit.filter((row) => row.aaLarge).length;
 
-  /*
-   * Prism is the one place in the showcase that emits CSS at runtime — it is a
-   * theme *generator*, so its output is the CSS block below. Both the injected
-   * rule and the colour chips render raw colour values, exactly as the library's
-   * own `ColorSwatch` does, because a generator's job is to display and emit
-   * colours rather than to be styled by them.
-   *
-   * `data-theme` is mirrored onto the preview so `dark:` utilities inside it
-   * agree with the generated surface colours.
-   */
   const scopeSelector = '[data-prism]';
+  const apiUrl = `${apiBase}/api/theme?${queryString(controls)}`;
+  const cssUrl = `${apiUrl}&format=css`;
+  const variableCount = Object.keys(theme.vars).length;
+
+  const json = useMemo(
+    () =>
+      JSON.stringify(
+        {
+          name: 'prism',
+          selector: '[data-theme="prism"]',
+          controls,
+          tokens: theme.vars,
+          audit,
+          sources: { css: cssUrl, json: apiUrl },
+        },
+        null,
+        2,
+      ),
+    [controls, theme.vars, audit, cssUrl, apiUrl],
+  );
+
+  const prompt = useMemo(
+    () =>
+      [
+        'Add this FlinchUI theme to the project.',
+        '',
+        '1. Paste the CSS block below into a global stylesheet that loads after the FlinchUI',
+        '   token layer (`src/styles/themes.css` is the conventional home).',
+        '2. Set data-theme="prism" on the <html> element, or on any ancestor element to scope',
+        '   the theme to a subtree.',
+        '3. Do not edit component source. Every component reads semantic tokens, so the theme',
+        '   applies without any code change.',
+        '',
+        '```css',
+        css.trimEnd(),
+        '```',
+        '',
+        'The same theme is available as JSON (including the measured contrast audit):',
+        apiUrl,
+        '',
+        'Raw CSS for `curl -o prism.css`:',
+        cssUrl,
+      ].join('\n'),
+    [css, apiUrl, cssUrl],
+  );
 
   function update<K extends keyof ThemeControls>(key: K, value: ThemeControls[K]) {
     setControls((previous) => ({ ...previous, [key]: value }));
@@ -73,50 +146,75 @@ export function ThemeGenerator() {
     }));
   }
 
-  const variableCount = Object.keys(theme.vars).length;
+  function download() {
+    const blob = new Blob([css], { type: 'text/css;charset=utf-8' });
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = `prism-${controls.mode}.css`;
+    link.click();
+    URL.revokeObjectURL(href);
+  }
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-bg text-fg">
-      {/*
-       * The generated theme, scoped to the preview subtree. Rendered inline so it
-       * lands after the site stylesheet and therefore wins at equal specificity.
-       */}
+    <div className="flex flex-col gap-8">
+      {/* Generated theme, scoped to the preview subtree and printed after the site CSS. */}
       <style>{`${scopeSelector} {\n${Object.entries(theme.vars)
         .map(([name, value]) => `  ${name}: ${value};`)
         .join('\n')}\n}`}</style>
 
-      <header className="flex h-12 shrink-0 items-center gap-3 border-b border-border bg-surface px-4">
-        <span
-          aria-hidden="true"
-          className="flex size-6 items-center justify-center rounded-md bg-brand-600 text-[11px] font-extrabold text-fg-on-brand"
-        >
-          P
-        </span>
-        <span className="text-sm font-semibold tracking-tight">Prism</span>
-        <span className="hidden text-xs text-fg-subtle sm:inline">
-          Theme generator · {variableCount} tokens
-        </span>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Seed presets">
+          {SEED_PRESETS.map((preset) => {
+            const active = controls.hue === preset.hue && controls.chroma === preset.chroma;
+            const color: Oklch = { l: 0.55, c: 0.2 * preset.chroma, h: preset.hue };
+            return (
+              <button
+                key={preset.name}
+                type="button"
+                aria-pressed={active}
+                onClick={() =>
+                  setControls((previous) => ({ ...previous, hue: preset.hue, chroma: preset.chroma }))
+                }
+                className={cn(
+                  'flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors',
+                  active
+                    ? 'border-fg bg-surface-sunken font-medium text-fg'
+                    : 'border-border text-fg-muted hover:border-border-strong hover:text-fg',
+                )}
+              >
+                <span
+                  aria-hidden="true"
+                  className="size-2.5 rounded-full"
+                  style={{ backgroundColor: toHex(color) }}
+                />
+                {preset.name}
+              </button>
+            );
+          })}
+        </div>
 
         <div className="ml-auto flex items-center gap-2">
           <Badge tone={passing === audit.length ? 'success' : 'warning'} size="sm">
             {passing}/{audit.length} contrast pairs
           </Badge>
           <Button size="sm" variant="secondary" startIcon={<SparklesIcon />} onClick={randomise}>
-            Randomise seed
+            Randomise
           </Button>
           <Button size="sm" variant="ghost" startIcon={<RefreshIcon />} onClick={() => setControls(DEFAULT_CONTROLS)}>
             Reset
           </Button>
         </div>
-      </header>
+      </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[300px_minmax(0,1fr)_360px] divide-x divide-border overflow-hidden">
+      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)] xl:items-start">
         {/* Controls */}
-        <div className="flex min-h-0 flex-col gap-6 overflow-y-auto bg-surface p-4">
+        <aside className="flex flex-col gap-6 rounded-xl border border-border bg-surface p-5 xl:sticky xl:top-20">
           <section className="flex flex-col gap-3">
-            <h2 className="text-[11px] font-semibold tracking-wide text-fg-subtle uppercase">
-              Seed hue
-            </h2>
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-[11px] font-semibold uppercase tracking-wide text-fg-subtle">Seed</h2>
+              <span className="font-mono text-[10px] text-fg-subtle">{variableCount} tokens</span>
+            </div>
 
             <div className="flex flex-wrap gap-1.5">
               {HUE_STEPS.map((step) => {
@@ -167,12 +265,12 @@ export function ThemeGenerator() {
                 onChange={(event) => update('chroma', Number(event.target.value))}
                 aria-label="Brand chroma"
               />
-              <span className="text-[10px] text-fg-subtle">0 is fully greyscale; 1 is the shipped ramp.</span>
+              <span className="text-[10px] text-fg-subtle">0 is greyscale; 1 is the shipped ramp.</span>
             </label>
           </section>
 
           <section className="flex flex-col gap-3 border-t border-border pt-5">
-            <h2 className="text-[11px] font-semibold tracking-wide text-fg-subtle uppercase">
+            <h2 className="text-[11px] font-semibold uppercase tracking-wide text-fg-subtle">
               Surfaces
             </h2>
 
@@ -209,15 +307,13 @@ export function ThemeGenerator() {
                 aria-label="Neutral chroma"
               />
               <span className="text-[10px] text-fg-subtle">
-                0 gives pure grey surfaces; 0.016 matches the shipped theme.
+                0 gives pure grey; 0.016 matches the shipped theme.
               </span>
             </label>
           </section>
 
           <section className="flex flex-col gap-3 border-t border-border pt-5">
-            <h2 className="text-[11px] font-semibold tracking-wide text-fg-subtle uppercase">
-              Form
-            </h2>
+            <h2 className="text-[11px] font-semibold uppercase tracking-wide text-fg-subtle">Form</h2>
 
             <RadioGroup
               name="mode"
@@ -245,43 +341,14 @@ export function ThemeGenerator() {
               />
             </label>
           </section>
+        </aside>
 
-          <section className="flex flex-col gap-2 border-t border-border pt-5">
-            <h2 className="text-[11px] font-semibold tracking-wide text-fg-subtle uppercase">
-              Presets
-            </h2>
-            <div className="flex flex-wrap gap-1.5">
-              {SEED_PRESETS.map((preset) => {
-                const active = controls.hue === preset.hue && controls.chroma === preset.chroma;
-                const color: Oklch = { l: 0.55, c: 0.2 * preset.chroma, h: preset.hue };
-                return (
-                  <button
-                    key={preset.name}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setControls((previous) => ({ ...previous, hue: preset.hue, chroma: preset.chroma }))}
-                    className={cn(
-                      'flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors',
-                      active
-                        ? 'border-fg bg-surface-sunken font-medium text-fg'
-                        : 'border-border text-fg-muted hover:border-border-strong hover:text-fg',
-                    )}
-                  >
-                    <span aria-hidden="true" className="size-2.5 rounded-full" style={{ backgroundColor: toHex(color) }} />
-                    {preset.name}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        </div>
-
-        {/* Preview + palette */}
-        <div className="flex min-h-0 flex-col overflow-y-auto">
-          <div
+        {/* Preview, palette, audit, export */}
+        <div className="flex min-w-0 flex-col gap-6">
+          <section
             data-prism=""
             data-theme={controls.mode}
-            className="shrink-0 border-b border-border bg-bg p-5 text-fg"
+            className="rounded-xl border border-border bg-bg p-5 text-fg"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -318,7 +385,7 @@ export function ThemeGenerator() {
                     ]}
                   />
                 </label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button size="sm">Send invite</Button>
                   <Button size="sm" variant="secondary">
                     Copy link
@@ -368,9 +435,9 @@ export function ThemeGenerator() {
                 </Tabs>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="flex flex-col gap-6 p-5">
+          <section className="flex flex-col gap-6 rounded-xl border border-border bg-surface p-5">
             <Ramp
               title="Brand ramp"
               description="The accent scale. 600 is the button fill; 700 is the on-dark text colour."
@@ -382,7 +449,7 @@ export function ThemeGenerator() {
               swatches={theme.neutral}
             />
 
-            <section className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
               <div>
                 <h3 className="text-sm font-semibold text-fg">Semantic tokens</h3>
                 <p className="text-xs text-fg-subtle">
@@ -390,20 +457,7 @@ export function ThemeGenerator() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-4">
-                {[
-                  'bg',
-                  'surface',
-                  'surface-raised',
-                  'surface-sunken',
-                  'fg',
-                  'fg-muted',
-                  'fg-subtle',
-                  'fg-on-brand',
-                  'border',
-                  'border-strong',
-                  'ring',
-                  'overlay',
-                ].map((name) => (
+                {SEMANTIC_NAMES.map((name) => (
                   <ColorSwatch
                     key={name}
                     color={theme.vars[`--color-${name}`]!}
@@ -413,17 +467,15 @@ export function ThemeGenerator() {
                   />
                 ))}
               </div>
-            </section>
+            </div>
 
-            <section className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
               <div>
                 <h3 className="text-sm font-semibold text-fg">Radius scale</h3>
-                <p className="text-xs text-fg-subtle">
-                  Multiplied by ×{controls.radius.toFixed(2)}.
-                </p>
+                <p className="text-xs text-fg-subtle">Multiplied by ×{controls.radius.toFixed(2)}.</p>
               </div>
               <div className="flex flex-wrap items-end gap-3">
-                {['xs', 'sm', 'md', 'lg', 'xl', '2xl'].map((step) => (
+                {RADIUS_STEPS.map((step) => (
                   <div key={step} className="flex flex-col items-center gap-1.5">
                     <span
                       className="size-12 border border-border bg-surface-sunken"
@@ -433,90 +485,139 @@ export function ThemeGenerator() {
                   </div>
                 ))}
               </div>
-            </section>
-          </div>
-        </div>
-
-        {/* Audit + CSS */}
-        <div className="flex min-h-0 flex-col overflow-y-auto bg-surface">
-          <section className="border-b border-border p-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-[11px] font-semibold tracking-wide text-fg-subtle uppercase">
-                Contrast audit
-              </h2>
-              <span className="ml-auto text-[11px] tabular-nums text-fg-subtle">
-                {passing} of {audit.length} pass 3:1
-              </span>
             </div>
+          </section>
 
-            <ul className="mt-3 flex flex-col gap-1">
-              {audit.map((row) => (
-                <li
-                  key={row.label}
-                  className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-surface-sunken"
-                >
-                  <span
-                    className={cn(
-                      'flex size-4 shrink-0 items-center justify-center rounded-full',
-                      row.aaLarge ? 'bg-success-subtle text-success-fg' : 'bg-danger-subtle text-danger-fg',
-                    )}
+          <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+            {/* Audit */}
+            <section className="rounded-xl border border-border bg-surface p-5">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[11px] font-semibold uppercase tracking-wide text-fg-subtle">
+                  Contrast audit
+                </h2>
+                <span className="ml-auto text-[11px] tabular-nums text-fg-subtle">
+                  {passing} of {audit.length} pass 3:1
+                </span>
+              </div>
+
+              <ul className="mt-3 flex flex-col gap-1">
+                {audit.map((row) => (
+                  <li
+                    key={row.label}
+                    className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-surface-sunken"
                   >
-                    {row.aaLarge ? <CheckIcon className="size-2.5" /> : <XIcon className="size-2.5" />}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-xs text-fg">{row.label}</span>
-                    <span className="block truncate font-mono text-[10px] text-fg-subtle">
-                      {row.fg} / {row.bg}
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-right">
                     <span
                       className={cn(
-                        'block text-xs font-semibold tabular-nums',
-                        row.aaa ? 'text-success-fg' : row.aa ? 'text-fg' : row.aaLarge ? 'text-warning-fg' : 'text-danger-fg',
+                        'flex size-4 shrink-0 items-center justify-center rounded-full',
+                        row.aaLarge ? 'bg-success-subtle text-success-fg' : 'bg-danger-subtle text-danger-fg',
                       )}
                     >
-                      {row.ratio.toFixed(2)}
+                      {row.aaLarge ? <CheckIcon className="size-2.5" /> : <XIcon className="size-2.5" />}
                     </span>
-                    <span className="block text-[10px] text-fg-subtle">
-                      {row.aaa ? 'AAA' : row.aa ? 'AA' : row.aaLarge ? 'AA18' : 'Fail'}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-xs text-fg">{row.label}</span>
+                      <span className="block truncate font-mono text-[10px] text-fg-subtle">
+                        {row.fg} / {row.bg}
+                      </span>
                     </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
+                    <span className="shrink-0 text-right">
+                      <span
+                        className={cn(
+                          'block text-xs font-semibold tabular-nums',
+                          row.aaa
+                            ? 'text-success-fg'
+                            : row.aa
+                              ? 'text-fg'
+                              : row.aaLarge
+                                ? 'text-warning-fg'
+                                : 'text-danger-fg',
+                        )}
+                      >
+                        {row.ratio.toFixed(2)}
+                      </span>
+                      <span className="block text-[10px] text-fg-subtle">
+                        {row.aaa ? 'AAA' : row.aa ? 'AA' : row.aaLarge ? 'AA18' : 'Fail'}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
 
-            <p className="mt-3 text-[11px] leading-5 text-fg-subtle">
-              Ratios are measured from the generated OKLCH values through OKLab → linear sRGB →
-              relative luminance, not estimated.
-            </p>
-          </section>
+              <p className="mt-3 text-[11px] leading-5 text-fg-subtle">
+                Ratios are measured from the generated OKLCH values through OKLab → linear sRGB →
+                relative luminance, not estimated.
+              </p>
+            </section>
 
-          <section className="flex min-h-0 flex-1 flex-col gap-3 p-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-[11px] font-semibold tracking-wide text-fg-subtle uppercase">
-                Generated CSS
-              </h2>
-              <Badge tone="neutral" size="sm" className="ml-auto">
-                {css.split('\n').length} lines
-              </Badge>
-            </div>
+            {/* Export */}
+            <section className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-5">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[11px] font-semibold uppercase tracking-wide text-fg-subtle">
+                  Export
+                </h2>
+                <Badge tone="neutral" size="sm" className="ml-auto">
+                  {css.split('\n').length} lines
+                </Badge>
+                <Button size="sm" variant="ghost" startIcon={<DownloadIcon />} onClick={download}>
+                  Download
+                </Button>
+              </div>
 
-            <CodeBlock
-              className="min-h-0"
-              language="css"
-              title={`${controls.mode}-theme.css`}
-              code={css}
-            />
+              <Tabs defaultValue="css">
+                <TabsList>
+                  <TabsTrigger value="css">CSS</TabsTrigger>
+                  <TabsTrigger value="json">JSON</TabsTrigger>
+                  <TabsTrigger value="prompt">Agent prompt</TabsTrigger>
+                </TabsList>
 
-            <p className="text-[11px] leading-5 text-fg-subtle">
-              Drop this into your stylesheet and set{' '}
-              <code className="rounded-sm bg-surface-sunken px-1 font-mono">
-                data-theme=&quot;prism&quot;
-              </code>{' '}
-              on any element. Everything below it re-themes, with no JavaScript.
-            </p>
-          </section>
+                <TabsContent value="css">
+                  <CodeBlock language="css" title={`prism-${controls.mode}.css`} code={css} />
+                  <p className="mt-3 text-[11px] leading-5 text-fg-subtle">
+                    Drop this into your stylesheet and set{' '}
+                    <code className="rounded-sm bg-surface-sunken px-1 font-mono">
+                      data-theme=&quot;prism&quot;
+                    </code>{' '}
+                    on any element. Everything below it re-themes, with no JavaScript.
+                  </p>
+                </TabsContent>
+
+                <TabsContent value="json">
+                  <CodeBlock language="json" title="prism.json" code={json} />
+                  <p className="mt-3 text-[11px] leading-5 text-fg-subtle">
+                    The same payload is served at{' '}
+                    <code className="break-all rounded-sm bg-surface-sunken px-1 font-mono">
+                      /api/theme
+                    </code>{' '}
+                    for agents and build scripts.
+                  </p>
+                </TabsContent>
+
+                <TabsContent value="prompt">
+                  <CodeBlock language="markdown" title="theme-prompt.md" code={prompt} />
+                  <p className="mt-3 text-[11px] leading-5 text-fg-subtle">
+                    Paste this into your agent. It carries the CSS, the activation instruction, and
+                    the machine-readable URL in one block.
+                  </p>
+                </TabsContent>
+              </Tabs>
+
+              <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface-sunken p-3">
+                <span className="text-[11px] font-semibold text-fg">Theme API</span>
+                <code className="break-all font-mono text-[10px] leading-5 text-fg-muted">
+                  GET /api/theme?{queryString(controls)}
+                </code>
+                <a
+                  href={`/api/theme?${queryString(controls)}&format=css`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex w-fit items-center gap-1 text-[11px] font-medium text-brand-600 hover:underline"
+                >
+                  Open raw CSS
+                  <ExternalLinkIcon className="size-3" />
+                </a>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </div>

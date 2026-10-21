@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { allComponents } from '@/lib/registry';
 import { guides } from '@/registry/guides';
+import { showcaseApps } from '@/lib/showcase';
 import { siteUrl } from '@/lib/site';
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -13,6 +14,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.8,
+    })),
+    { url: `${siteUrl}/tools`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${siteUrl}/tools/theme`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${siteUrl}/examples`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    ...showcaseApps.map((app) => ({
+      url: `${siteUrl}/examples/${app.slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
     })),
     ...allComponents.map((component) => ({
       url: `${siteUrl}/components/${component.slug}`,

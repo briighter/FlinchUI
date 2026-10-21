@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/button';
 import { Drawer } from '@/components/ui/drawer';
-import { MenuIcon, BookOpenIcon, SparklesIcon, LayersIcon, BoxIcon } from '@/components/ui/icons';
+import { MenuIcon, BookOpenIcon, SparklesIcon, LayersIcon, BoxIcon, PaletteIcon } from '@/components/ui/icons';
 import type { NavSection } from '@/lib/nav';
 import type { SearchItem } from './search';
 import { SearchDialog } from './search';
@@ -21,6 +21,7 @@ const LINKS = [
   { href: '/docs/introduction', label: 'Docs', icon: BookOpenIcon },
   { href: '/components/button', label: 'Components', icon: LayersIcon },
   { href: '/examples', label: 'Examples', icon: BoxIcon },
+  { href: '/tools', label: 'Tools', icon: PaletteIcon },
   { href: '/docs/ai', label: 'AI', icon: SparklesIcon },
 ];
 

@@ -48,9 +48,6 @@ const RENDERERS: Record<string, ComponentType> = {
     ssr: false,
     loading: AppLoading,
   }),
-  'theme-generator': dynamic(() => import('./theme-generator').then((m) => m.ThemeGenerator), {
-    loading: AppLoading,
-  }),
 };
 
 export function ShowcaseAppView({ slug }: { slug: string }) {

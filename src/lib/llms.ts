@@ -2,6 +2,8 @@ import { categories, components } from '@/registry/components';
 import { guides } from '@/registry/guides';
 import { registryVersion, type ComponentDoc } from '@/lib/registry';
 import { siteUrl } from '@/lib/site';
+import { showcaseApps } from '@/lib/showcase';
+import { SEED_PRESETS } from '@/lib/theme';
 
 /**
  * Machine-readable documentation surfaces.
@@ -75,6 +77,39 @@ export function buildLlmsTxt(): string {
 
   lines.push(
     '',
+    '## Tools',
+    '',
+    `- [Theme Studio](${siteUrl}/tools/theme): Generate a complete theme from a seed hue; export copy-paste CSS, JSON, or an agent prompt.`,
+    `- [Theme API](${siteUrl}/api/themes): Shipped themes, seed presets, parameter ranges, and endpoint URLs.`,
+    `- [Registry API](${siteUrl}/api/registry): Every component as JSON — props, files, dependencies, and a11y notes.`,
+    '',
+    '## Generating a theme',
+    '',
+    'Themes are CSS custom-property blocks selected by `data-theme`. Generate one over HTTP;',
+    'every parameter is optional and clamped, so an invalid guess still returns a valid theme:',
+    '',
+    '```bash',
+    `curl "${siteUrl}/api/theme?preset=violet&mode=dark"            # JSON: controls, tokens, css, audit`,
+    `curl "${siteUrl}/api/theme?hue=195&format=css" -o theme.css      # raw CSS block`,
+    '```',
+    '',
+    `Parameters: hue 0–360, chroma 0–1.6, neutralHue 0–360, neutralChroma 0–0.03, mode \`light\`|\`dark\`, radius 0–2.`,
+    `Presets: ${SEED_PRESETS.map((preset) => preset.name.toLowerCase()).join(', ')}.`,
+    '',
+    'Apply the result by writing the CSS into a stylesheet that loads after the token layer and',
+    'setting `data-theme="prism"` on `<html>` or any ancestor. Do not edit component source.',
+    '',
+    `## Examples (${showcaseApps.length})`,
+    '',
+  );
+  for (const app of showcaseApps) {
+    lines.push(
+      `- [${app.name} — ${app.title}](${siteUrl}/examples/${app.slug}): ${app.tagline} Components: ${app.uses.join(', ')}.`,
+    );
+  }
+
+  lines.push(
+    '',
     '## Authoring rules (summary)',
     '',
     '- Every component is a single TSX file that exports its props interface, variant map, and component.',
@@ -134,6 +169,19 @@ export function buildLlmsFullTxt(): string {
     '',
     'Override tokens by the same `--color-*` name inside a `[data-theme="…"]` block.',
     '',
+    'Generate a theme instead of writing one by hand:',
+    '',
+    '```bash',
+    `curl "${siteUrl}/api/theme?hue=265&chroma=1&mode=light"`,
+    `curl "${siteUrl}/api/theme?preset=teal&format=css" -o prism.css`,
+    '```',
+    '',
+    'The JSON response carries `controls`, `tokens`, the ready-to-paste `css`, and a measured',
+    'WCAG `audit`. Query parameters: hue (0–360), chroma (0–1.6), neutralHue (0–360),',
+    'neutralChroma (0–0.03), mode (light|dark), radius (0–2), preset.',
+    `Catalogue: ${siteUrl}/api/themes`,
+    `Studio: ${siteUrl}/tools/theme`,
+    '',
     '## Authoring rules',
     '',
     '- Static Tailwind classes only; no inline styles or CSS-in-JS.',
@@ -178,6 +226,39 @@ export function buildLlmsFullTxt(): string {
     lines.push(`### ${guide.title}`, '');
     lines.push(guide.description, '');
     lines.push(`- ${siteUrl}/docs/${guide.slug}`, '');
+  }
+
+  lines.push('', '## Tools', '');
+  lines.push(`### Theme Studio`, '');
+  lines.push(
+    'Generates a full theme from a seed: OKLCH tokens, contrast audit, CSS, JSON, and an agent prompt.',
+    '',
+    `- ${siteUrl}/tools/theme`,
+    '',
+    '### Theme API',
+    '',
+    '```bash',
+    `curl "${siteUrl}/api/theme?preset=violet&mode=dark"`,
+    `curl "${siteUrl}/api/theme?hue=195&format=css" -o prism.css`,
+    `curl "${siteUrl}/api/themes"   # shipped themes, presets, parameter ranges`,
+    '```',
+    '',
+    `### Registry API`,
+    '',
+    `- ${siteUrl}/api/registry`,
+    `- ${siteUrl}/api/registry/<slug>`,
+    '',
+  );
+
+  lines.push('', `## Examples (${showcaseApps.length})`, '');
+  for (const app of showcaseApps) {
+    lines.push(`### ${app.name} — ${app.title}`, '');
+    lines.push(app.description, '');
+    lines.push(`- ${siteUrl}/examples/${app.slug}`);
+    lines.push(`- Category: ${app.category}; device: ${app.device}`);
+    lines.push(`- Components: ${app.uses.join(', ')}`);
+    if (app.deps?.length) lines.push(`- Runtime dependencies: ${app.deps.join(', ')}`);
+    lines.push('');
   }
 
   return lines.join('\n');

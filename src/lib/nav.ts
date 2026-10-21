@@ -26,6 +26,15 @@ export function getDocsNav(): NavSection[] {
   return [
     guideSection('Getting started'),
     guideSection('Guides'),
+    {
+      // Services rather than documentation: these render outside the docs shell.
+      title: 'Tools',
+      items: [
+        { label: 'Theme Studio', href: '/tools/theme' },
+        { label: 'All tools', href: '/tools' },
+        { label: 'Theme API', href: '/api/themes' },
+      ],
+    },
     ...categories.map((category) => ({
       title: category.label,
       items: components
